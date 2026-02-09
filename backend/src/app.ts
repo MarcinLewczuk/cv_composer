@@ -251,3 +251,77 @@ server.get('/uploads/:userId', async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * POST /parse-cv
+ * Extracts text content from an uploaded CV file
+ * Supports: TXT, DOCX
+ */
+server.post('/parse-cv', async (req: Request, res: Response) => {
+  try {
+    const { filePath } = req.body;
+    
+    if (!filePath) {
+      return res.status(400).json({ error: 'filePath is required' });
+    }
+
+    // Clean the file path (remove leading slash)
+    const cleanPath = filePath.startsWith('/') ? filePath.substring(1) : filePath;
+    
+    // Construct full file path - files are stored in public/uploads/
+    const fullPath = path.join(process.cwd(), 'public', cleanPath);
+    
+    console.log('Parsing CV - File path:', filePath, 'Full path:', fullPath);
+    
+    // Check if file exists
+    if (!fs.existsSync(fullPath)) {
+      console.error('File not found:', fullPath);
+      return res.status(404).json({ error: 'File not found: ' + fullPath });
+    }
+
+    let extractedText = '';
+    const fileExtension = path.extname(fullPath).toLowerCase();
+    
+    console.log('File extension:', fileExtension);
+
+    try {
+      if (fileExtension === '.txt') {
+        // For text files, just read directly
+        extractedText = fs.readFileSync(fullPath, 'utf-8');
+        console.log('Extracted TXT text length:', extractedText.length);
+      } else if (fileExtension === '.docx') {
+        // For DOCX, we need to parse the ZIP and extract XML
+        const JSZip = require('jszip');
+        const fileBuffer = fs.readFileSync(fullPath);
+        const zip = new JSZip();
+        const zipData = await zip.loadAsync(fileBuffer);
+        
+        const docXmlFile = zipData.file('word/document.xml');
+        if (docXmlFile) {
+          const docXml = await docXmlFile.async('string');
+          // Extract text from <w:t> tags
+          const textRegex = /<w:t[^>]*>([^<]*)<\/w:t>/g;
+          let match;
+          while ((match = textRegex.exec(docXml)) !== null) {
+            extractedText += match[1];
+          }
+        }
+        console.log('Extracted DOCX text length:', extractedText.length);
+      } else {
+        return res.status(400).json({ error: 'Unsupported file format. Supported formats: TXT, DOCX' });
+      }
+
+      res.json({
+        success: true,
+        extractedText: extractedText,
+        fileExtension: fileExtension
+      });
+    } catch (parseError) {
+      console.error('Error parsing file:', parseError);
+      res.status(500).json({ error: 'Failed to parse file content: ' + String(parseError) });
+    }
+  } catch (error) {
+    console.error('Parse CV error:', error);
+    res.status(500).json({ error: 'Internal server error: ' + String(error) });
+  }
+});
+

@@ -1,0 +1,28 @@
+/* CV Editor Component Styles */
+
+/* Smooth transitions for expandable sections */
+.transition-transform {
+  transition: transform 0.3s ease-in-out;
+}
+
+.rotate-180 {
+  transform: rotate(180deg);
+}
+
+/* Input field focus styles */
+input:focus,
+textarea:focus {
+  box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+}
+
+/* Button hover effects */
+button {
+  transition: all 0.2s ease;
+}
+
+/* Form grid responsive behavior */
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr !important;
+  }
+}

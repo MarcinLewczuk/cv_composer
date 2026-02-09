@@ -73,11 +73,18 @@
           <td class="px-4 py-3 text-gray-600">{{ formatFileSize(file.fileSize) }}</td>
           <td class="px-4 py-3 text-gray-600">{{ formatDate(file.createdAt) }}</td>
           <td class="px-4 py-3">
-            <button 
-              (click)="downloadFile(file.filePath, file.originalFileName)"
-              class="text-orange-600 hover:text-orange-700 font-semibold">
-              Download
-            </button>
+            <div class="flex gap-3">
+              <button 
+                (click)="downloadFile(file.filePath, file.originalFileName)"
+                class="text-orange-600 hover:text-orange-700 font-semibold">
+                Download
+              </button>
+              <button 
+                (click)="downloadAsJSON(file)"
+                class="text-blue-600 hover:text-blue-700 font-semibold">
+                JSON
+              </button>
+            </div>
           </td>
         </tr>
       </tbody>
