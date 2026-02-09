@@ -209,16 +209,3 @@ export class CVUploadComponent implements OnInit, OnDestroy {
     link.click();
   }
 }
-    return date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
-  }
-
-  /**
-   * Download a file
-   */
-  downloadFile(filePath: string, fileName: string) {
-    const link = document.createElement('a');
-    link.href = `http://localhost:3000${filePath}`;
-    link.download = fileName;
-    link.click();
-  }
-}

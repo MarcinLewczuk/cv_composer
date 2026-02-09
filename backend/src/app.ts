@@ -178,6 +178,8 @@ server.get('/users/me', verifyToken, (req: Request, res: Response) => {
     email: req.user?.email
   });
 });
+
+/**
  * POST /upload
  * Uploads a CV file and stores metadata in database
  * - Requires authentication (userId in request body or headers)
