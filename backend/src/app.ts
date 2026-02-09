@@ -36,7 +36,6 @@ if (!fs.existsSync(uploadsDir)) {
   console.log('Created uploads directory:', uploadsDir);
 }
 
-// Setup middleware
 server.use(express.json()); // Parse incoming JSON request bodies
 server.use(cors()); // Enable Cross-Origin Resource Sharing
 
@@ -80,7 +79,7 @@ const db = mysql.createConnection({
   port: Number(process.env['DB_PORT']),
   user: process.env['DB_USER'],
   password: process.env['DB_PASS'],
-  database: process.env['DB_NAME'],
+  database: process.env['DB_NAME']
 });
 
 // Export database connection for use in queries.ts
@@ -125,14 +124,16 @@ function requireAdminApiKey(req: Request, res: Response, next: NextFunction) {
   next();
 }
 
-// =====================================// ROUTES
-// =====================================
+// ============================================
+// ROUTES
+// ============================================
+
 /**
  * GET /users
  * Retrieves all users from the database.
  */
 server.get('/users', (req: Request, res: Response) => {
-  requireAdminApiKey(req, res, () => selectAllUsersSafe()(req, res));
+  requireAdminApiKey(req, res, () => selectAll('users')(req, res));
 });
 
 /**
@@ -147,7 +148,6 @@ server.get('/users/email', (req: Request, res: Response) => {
  * POST /users
  * Creates a new user account with email and password.
  * - Validates required fields (email, password)
- * - Derives username from email
  * - Hashes password using bcrypt
  * - Returns JWT token and sanitized user object (without password)
  */
@@ -187,7 +187,149 @@ server.post('/users', async (req: Request, res: Response) => {
  * POST /users/login
  * Authenticates a user by email and password.
  * - Verifies credentials against bcrypt-hashed password
- * - Returns JWT token and sanitized user object (without password) on success
+ * - Returns sanitized user object (without password) on success
  * - Returns 401 Unauthorized on invalid credentials
  */
 server.post('/users/login', loginUser('users'));
+
+/**
+ * GET /users/me
+ * Protected endpoint - requires valid JWT token in Authorization header
+ * Returns the current authenticated user's information
+ */
+server.get('/users/me', verifyToken, (req: Request, res: Response) => {
+  res.json({
+    id: req.user?.id,
+    email: req.user?.email
+  });
+});
+
+/**
+ * POST /upload
+ * Uploads a CV file and stores metadata in database
+ * - Requires authentication (userId in request body or headers)
+ * - Accepts PDF, DOC, DOCX, and TXT files (10MB max)
+ * - Stores file in public/uploads directory
+ * - Records file metadata in file_uploads table
+ */
+server.post('/upload', upload.single('file'), async (req: Request, res: Response) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+
+    const userId = req.body.userId;
+    if (!userId) {
+      return res.status(400).json({ error: 'userId is required' });
+    }
+
+    const { originalname, filename, size, mimetype } = req.file;
+    const filePath = `/uploads/${filename}`;
+
+    // Insert file metadata into database
+    const query = 'INSERT INTO file_uploads (fileName, originalFileName, fileSize, mimeType, filePath, createdBy) VALUES (?, ?, ?, ?, ?, ?)';
+    db.query(query, [filename, originalname, size, mimetype, filePath, userId], (error: mysql.QueryError | null, results: any) => {
+      if (error) {
+        console.error('Error saving file metadata:', error);
+        // Clean up uploaded file if database insert fails
+        fs.unlink(path.join(uploadsDir, filename), (unlinkError: NodeJS.ErrnoException | null) => {
+          if (unlinkError) console.error('Error deleting file:', unlinkError);
+        });
+        return res.status(500).json({ error: 'Failed to save file metadata' });
+      }
+
+      res.json({
+        success: true,
+        fileId: results.insertId,
+        fileName: originalname,
+        filePath: filePath,
+        fileSize: size,
+        message: 'File uploaded successfully'
+      });
+    });
+  } catch (error) {
+    console.error('Upload error:', error);
+    res.status(500).json({ error: 'File upload failed' });
+  }
+});
+
+/**
+ * GET /uploads/:userId
+ * Retrieves all uploaded files for a user
+ */
+server.get('/uploads/:userId', async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.userId;
+    const query = 'SELECT id, fileName, originalFileName, fileSize, mimeType, filePath, createdAt FROM file_uploads WHERE createdBy = ? ORDER BY createdAt DESC';
+    
+    db.query(query, [userId], (error: mysql.QueryError | null, results: any) => {
+      if (error) {
+        console.error('Error retrieving files:', error);
+        return res.status(500).json({ error: 'Failed to retrieve files' });
+      }
+      
+      res.json(results || []);
+    });
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// ============================================
+// CV AI ROUTES
+// ============================================
+
+/**
+ * POST /api/cv/parse
+ * Parse CV text to structured JSON
+ */
+server.post('/api/cv/parse', parseCVHandler);
+
+/**
+ * POST /api/cv/review
+ * Review parsed CV for structure and style issues
+ */
+server.post('/api/cv/review', reviewCVHandler);
+
+/**
+ * POST /api/cv/improve
+ * Improve CV language and structure
+ */
+server.post('/api/cv/improve', improveCVHandler);
+
+/**
+ * POST /api/cv/tailor
+ * Tailor CV for specific job description
+ */
+server.post('/api/cv/tailor', tailorCVHandler);
+
+/**
+ * POST /api/cv/save
+ * Save CV to database (requires authentication)
+ */
+server.post('/api/cv/save', saveCVHandler);
+
+/**
+ * GET /api/cv
+ * Get all CVs for current user (requires authentication)
+ */
+server.get('/api/cv', getUserCVsHandler);
+
+/**
+ * GET /api/cv/:id
+ * Get specific CV by ID (requires authentication)
+ */
+server.get('/api/cv/:id', getCVHandler);
+
+/**
+ * DELETE /api/cv/:id
+ * Delete CV by ID (requires authentication)
+ */
+server.delete('/api/cv/:id', deleteCVHandler);
+
+/**
+ * POST /api/cv/generate-questions
+ * Generate interview questions based on CV and job
+ */
+server.post('/api/cv/generate-questions', generateQuestionsHandler);
