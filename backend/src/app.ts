@@ -6,10 +6,11 @@ const envPath = path.resolve(process.cwd(), 'backend/private/.env');
 console.log('Loading .env from:', envPath);
 dotenv.config({ path: envPath });
 
-import express, { Request, Response } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import mysql from 'mysql2';
-import multer, { FileFilterCallback } from 'multer';
+import { insert, selectAllUsersSafe, selectColumn, loginUser } from './queries';
+import multer from 'multer';
 import fs from 'fs';
 import { insert, selectAll, selectColumn, loginUser } from './queries';
 import { hashPassword, sanitizeUser } from './security/password';
@@ -112,12 +113,27 @@ server.listen(process.env['PORT'], (error?: Error) => {
 // ROUTES
 // ============================================
 
+function requireAdminApiKey(req: Request, res: Response, next: NextFunction) {
+  const expected = process.env['ADMIN_API_KEY'];
+  if (!expected) {
+    return res.status(500).json({ error: 'server not configured' });
+  }
+  const authHeader = req.headers['authorization'] || '';
+  const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : '';
+  if (token !== expected) {
+    return res.status(401).json({ error: 'unauthorized' });
+  }
+  next();
+}
+
+// =====================================// ROUTES
+// =====================================
 /**
  * GET /users
  * Retrieves all users from the database.
  */
 server.get('/users', (req: Request, res: Response) => {
-  selectAll('users')(req, res);
+  requireAdminApiKey(req, res, () => selectAllUsersSafe()(req, res));
 });
 
 /**
