@@ -7,48 +7,72 @@ interface AuthUser {
 	email: string;
 }
 
+interface LoginResponse {
+	token: string;
+	user: AuthUser;
+}
+
 @Injectable({ providedIn: 'root' })
 export class AuthService {
 	// Store current user (null when logged out)
 	private currentUserSig = signal<AuthUser | null>(null);
+	
+	// Store JWT token
+	private tokenSig = signal<string | null>(null);
 
 	// Derived auth state
 	isAuthenticated = computed(() => this.currentUserSig() !== null);
 
 	constructor(private client: HttpClient) {}
 
-	login(email: string, password: string): Observable<AuthUser> {
-		return this.client.post<AuthUser>('http://localhost:3000/users/login', { email, password }).pipe(
-			tap(user => {
+	login(email: string, password: string): Observable<LoginResponse> {
+		return this.client.post<LoginResponse>('http://localhost:3000/users/login', { email, password }).pipe(
+			tap(response => {
+				const { token, user } = response;
 				this.currentUserSig.set(user);
-				// Persist minimal session (avoid storing password)
+				this.tokenSig.set(token);
+				// Persist token and user data
+				localStorage.setItem('auth_token', token);
 				localStorage.setItem('auth_user', JSON.stringify(user));
 			})
 		);
 	}
 
-	signup(email: string, password: string): Observable<AuthUser> {
-		return this.client.post<AuthUser>('http://localhost:3000/users', { email, password }).pipe(
-			tap(user => {
-				// Auto login
+	signup(email: string, password: string): Observable<LoginResponse> {
+		return this.client.post<LoginResponse>('http://localhost:3000/users', { email, password }).pipe(
+			tap(response => {
+				const { token, user } = response;
 				this.currentUserSig.set(user);
+				this.tokenSig.set(token);
+				// Persist token and user data
+				localStorage.setItem('auth_token', token);
+				localStorage.setItem('auth_user', JSON.stringify(user));
 			})
 		);
 	}
 
 	logout(): void {
 		this.currentUserSig.set(null);
+		this.tokenSig.set(null);
+		localStorage.removeItem('auth_token');
 		localStorage.removeItem('auth_user');
 	}
 
 	restore(): void {
-		const raw = localStorage.getItem('auth_user');
-		if (raw) {
+		const token = localStorage.getItem('auth_token');
+		const userRaw = localStorage.getItem('auth_user');
+		
+		if (token && userRaw) {
 			try {
-				const parsed: AuthUser = JSON.parse(raw);
-				this.currentUserSig.set(parsed);
+				const user: AuthUser = JSON.parse(userRaw);
+				this.tokenSig.set(token);
+				this.currentUserSig.set(user);
 			} catch { /* ignore */ }
 		}
+	}
+
+	getToken(): string | null {
+		return this.tokenSig();
 	}
 
 	get currentUser(): AuthUser | null {

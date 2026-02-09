@@ -13,6 +13,7 @@ import multer from 'multer';
 import fs from 'fs';
 import { insert, selectAll, selectColumn, loginUser } from './queries';
 import { hashPassword, sanitizeUser } from './security/password';
+import { verifyToken, generateToken } from './security/auth';
 
 // Initialize Express application with middleware.
 const server = express();
@@ -122,7 +123,7 @@ server.get('/users/email', (req: Request, res: Response) => {
  * - Validates required fields (email, password)
  * - Derives username from email
  * - Hashes password using bcrypt
- * - Returns sanitized user object (without password)
+ * - Returns JWT token and sanitized user object (without password)
  */
 server.post('/users', async (req: Request, res: Response) => {
   try {
@@ -133,13 +134,24 @@ server.post('/users', async (req: Request, res: Response) => {
     const username = email.split('@')[0];
     const hashed = await hashPassword(password);
 
-    // Rebuild request body with hashed password
-    req.body = { email, password: hashed, username };
-    insert('users', ['email', 'password'])(req, {
-      status: (code: number) => ({
-        json: (payload: any) => res.status(code).json(sanitizeUser(payload))
-      })
-    } as Response); // Wrap to intercept response and sanitize
+    // Insert user directly
+    db.query(
+      'INSERT INTO users (email, password, username) VALUES (?, ?, ?)',
+      [email, hashed, username],
+      (error: any, results: any) => {
+        if (error) {
+          console.error('User creation failed:', error);
+          return res.status(500).json({ error: 'internal error' });
+        }
+        
+        // Generate JWT token
+        const token = generateToken(results.insertId, email);
+        return res.status(201).json({
+          token,
+          user: { id: results.insertId, email }
+        });
+      }
+    );
   } catch (e) {
     console.error('User creation failed:', e);
     res.status(500).json({ error: 'internal error' });
@@ -150,12 +162,22 @@ server.post('/users', async (req: Request, res: Response) => {
  * POST /users/login
  * Authenticates a user by email and password.
  * - Verifies credentials against bcrypt-hashed password
- * - Returns sanitized user object (without password) on success
+ * - Returns JWT token and sanitized user object (without password) on success
  * - Returns 401 Unauthorized on invalid credentials
  */
 server.post('/users/login', loginUser('users'));
 
 /**
+ * GET /users/me
+ * Protected endpoint - requires valid JWT token in Authorization header
+ * Returns the current authenticated user's information
+ */
+server.get('/users/me', verifyToken, (req: Request, res: Response) => {
+  res.json({
+    id: req.user?.id,
+    email: req.user?.email
+  });
+});
  * POST /upload
  * Uploads a CV file and stores metadata in database
  * - Requires authentication (userId in request body or headers)
