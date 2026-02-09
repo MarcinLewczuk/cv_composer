@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClientModule } from '@angular/common/http';
 import { FileUploadService } from '../../services/FileUploadService';
 import { AuthService } from '../../services/AuthService';
+import { CVParseService } from '../../services/CVParseService';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
@@ -39,7 +40,8 @@ export class CVUploadComponent implements OnInit, OnDestroy {
     private fileUploadService: FileUploadService,
     public authService: AuthService,
     private ngZone: NgZone,
-    private cdr: ChangeDetectorRef
+    private cdr: ChangeDetectorRef,
+    private cvParseService: CVParseService
   ) {}
 
   ngOnInit() {
@@ -207,5 +209,48 @@ export class CVUploadComponent implements OnInit, OnDestroy {
     link.href = `http://localhost:3000${filePath}`;
     link.download = fileName;
     link.click();
+  }
+
+  /**
+   * Download uploaded file as JSON
+   */
+  async downloadAsJSON(file: FileRecord) {
+    try {
+      // Call backend to extract text from file
+      const response = await fetch('http://localhost:3000/parse-cv', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ filePath: file.filePath })
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to parse file');
+      }
+
+      const parseResult = await response.json();
+      const extractedText = parseResult.extractedText;
+
+      console.log('Extracted text length:', extractedText.length);
+
+      // Create simple JSON with extracted text
+      const jsonData = { cv: extractedText };
+      const jsonString = JSON.stringify(jsonData, null, 2);
+      const jsonFileName = file.originalFileName.replace(/\.[^/.]+$/, '') + '.json';
+
+      // Create blob and trigger download
+      const blob = new Blob([jsonString], { type: 'application/json' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = jsonFileName;
+      link.click();
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error downloading as JSON:', error);
+      this.uploadError = `Failed to convert file to JSON: ${(error as Error).message}`;
+    }
   }
 }
