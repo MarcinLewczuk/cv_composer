@@ -1,17 +1,75 @@
 <main class="min-h-screen bg-linear-to-br from-gray-50 to-gray-100">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
     <div class="bg-white/80 backdrop-blur-sm rounded-lg shadow-sm border border-gray-200 p-8 sm:p-12">
-      <div class="prose prose-sm max-w-3xl mx-auto">
-        <p class="text-gray-700 leading-relaxed">
-            I originally built this login and signup system for my e-commerce dissertation project, but later switched to Auth0 for better security and simplicity. Since I put a lot of time into it, I didn’t want the work to go to waste so I’m sharing it here in case it helps someone else.
+<main class="min-h-screen">
+  <!-- Hero Section -->
+  <section class="bg-orange-50 py-20 sm:py-32">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="text-center">
+        <h1 class="text-5xl sm:text-6xl font-bold text-gray-900 mb-6">
+          Build Your Perfect <span class="text-orange-600">Resume</span>
+        </h1>
+        <p class="text-xl text-gray-600 mb-12 max-w-3xl mx-auto">
+          Create professional CVs with AI-powered suggestions, practice your interview skills, and take mock tests to prepare for your dream job.
         </p>
-        <p class="text-gray-700 leading-relaxed mt-4">
-          This project uses MySQL and a docker container for a local database. If you would like to use your own database connection, you can do so by editing the .env file inside <strong class="text-indigo-500">'backend/private'</strong>.
-        </p>
-        <p class="text-gray-700 leading-relaxed mt-4">
-          Leave a star if it's helped you at all 🙂
-        </p>
+        <div class="flex gap-4 justify-center flex-wrap">
+          <button class="px-8 py-3 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-lg transition duration-300">
+            Get Started Free
+          </button>
+          <button class="px-8 py-3 border-2 border-orange-600 text-orange-600 hover:bg-orange-50 font-semibold rounded-lg transition duration-300">
+            Build Your CV
+          </button>
+        </div>
       </div>
     </div>
-  </div>
+  </section>
+
+  <!-- Features Section -->
+  <section class="py-20 sm:py-32 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h2 class="text-4xl sm:text-5xl font-bold text-center text-gray-900 mb-16">
+        Everything You Need to Land Your Dream Job
+      </h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+        <!-- Feature 1 -->
+        <div class="text-center">
+          <div class="flex justify-center mb-6">
+            <div class="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center">
+              <svg class="w-10 h-10 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M4 4a2 2 0 012-2h8a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2V4z"/>
+              </svg>
+            </div>
+          </div>
+          <h3 class="text-2xl font-bold text-gray-900 mb-3">CV Builder</h3>
+          <p class="text-gray-600">Create and customize professional resumes with AI-powered suggestions to make your CV stand out.</p>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="text-center">
+          <div class="flex justify-center mb-6">
+            <div class="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center">
+              <svg class="w-10 h-10 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/>
+              </svg>
+            </div>
+          </div>
+          <h3 class="text-2xl font-bold text-gray-900 mb-3">Interview Practice</h3>
+          <p class="text-gray-600">Practice common interview questions and get feedback to boost your confidence before the real interview.</p>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="text-center">
+          <div class="flex justify-center mb-6">
+            <div class="w-20 h-20 bg-orange-100 rounded-full flex items-center justify-center">
+              <svg class="w-10 h-10 text-orange-600" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+              </svg>
+            </div>
+          </div>
+          <h3 class="text-2xl font-bold text-gray-900 mb-3">Mock Tests</h3>
+          <p class="text-gray-600">Take comprehensive mock interviews and tests to evaluate your readiness and identify areas for improvement.</p>
+        </div>
+      </div>
+    </div>
+  </section>
 </main>
