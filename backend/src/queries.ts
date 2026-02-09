@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { QueryError } from 'mysql2';
 import { db } from './app';
 import { verifyPassword, sanitizeUser } from './security/password';
+import { generateToken } from './security/auth';
 
 /**
  * Retrieves all records from a specified table.
@@ -97,8 +98,9 @@ export function insert(tableName: string, columns: string[]) {
 
 /**
  * Authenticates a user by verifying email and bcrypt-hashed password.
+ * Returns a JWT token along with sanitized user info.
  * @param tableName The name of the table containing user records.
- * @returns Middleware function that verifies credentials and returns sanitized user or 401 error.
+ * @returns Middleware function that verifies credentials and returns JWT token or 401 error.
  */
 export function loginUser(tableName: string) {
     return (req: Request, res: Response) => {
@@ -125,7 +127,12 @@ export function loginUser(tableName: string) {
                     if (!ok) {
                         return res.status(401).json({ error: 'invalid credentials' });
                     }
-                    return res.status(200).json(sanitizeUser(user));
+                    // Generate JWT token
+                    const token = generateToken(user.id, user.email);
+                    return res.status(200).json({
+                        token,
+                        user: sanitizeUser(user)
+                    });
                 } catch (e) {
                     console.error('Password verification failed:', e);
                     return res.status(500).json({ error: 'internal error' });

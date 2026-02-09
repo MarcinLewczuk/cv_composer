@@ -61,12 +61,8 @@ onSubmit() {
   const { email, password } = this.signupForm.value;
   this.auth.signup(email!, password!).subscribe({
     next: () => {
-      this.snackbar.success('Sign up successful!');
-      this.auth.login(email!, password!).subscribe({
-        next: () => {
-          this.r.navigate(['/']);
-        }
-      });
+      this.snackbar.success('Sign up successful! You are now logged in.');
+      this.r.navigate(['/']);
     },
     error: (err) => {
       if (err.status === 409 || err.error?.error?.includes('Duplicate')) {
