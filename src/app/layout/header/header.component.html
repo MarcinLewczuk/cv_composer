@@ -4,14 +4,39 @@
       <div class="flex items-center gap-8 cursor-pointer" routerLink="/">
         <span class="text-2xl font-bold text-orange-600">CV Composer</span>
       </div>
-      <nav class="flex items-center gap-8">
+      
+      <!-- Show navigation only when authenticated -->
+      <nav *ngIf="auth.isAuthenticated()" class="flex items-center gap-8">
         <a routerLink="/builder" class="text-sm font-medium text-gray-700 hover:text-orange-600">Builder</a>
         <a routerLink="/interview" class="text-sm font-medium text-gray-700 hover:text-orange-600">Interview Practice</a>
         <a routerLink="/tests" class="text-sm font-medium text-gray-700 hover:text-orange-600">Mock Tests</a>
       </nav>
+      
       <nav class="flex items-center gap-4">
-        <a routerLink="/login" class="text-sm font-medium text-gray-700 hover:text-orange-600">Login</a>
-        <a routerLink="/signup" class="font-semibold inline-flex items-center px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white text-sm rounded-md">Sign Up</a>
+        <!-- Show when NOT authenticated -->
+        <a 
+          *ngIf="!auth.isAuthenticated()" 
+          routerLink="/login" 
+          class="text-sm font-medium text-gray-700 hover:text-orange-600">
+          Login
+        </a>
+        <a 
+          *ngIf="!auth.isAuthenticated()" 
+          routerLink="/signup" 
+          class="font-semibold inline-flex items-center px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white text-sm rounded-md">
+          Sign Up
+        </a>
+
+        <!-- Show when authenticated -->
+        <span *ngIf="auth.isAuthenticated()" class="text-sm text-gray-600">
+          {{ auth.currentUser?.email }}
+        </span>
+        <button 
+          *ngIf="auth.isAuthenticated()"
+          (click)="logout()"
+          class="font-semibold inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm rounded-md">
+          Logout
+        </button>
       </nav>
     </div>
   </div>
