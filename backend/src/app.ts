@@ -121,7 +121,6 @@ server.get('/users/email', (req: Request, res: Response) => {
  * POST /users
  * Creates a new user account with email and password.
  * - Validates required fields (email, password)
- * - Derives username from email
  * - Hashes password using bcrypt
  * - Returns JWT token and sanitized user object (without password)
  */
@@ -131,13 +130,12 @@ server.post('/users', async (req: Request, res: Response) => {
     if (!email || !password) {
       return res.status(400).json({ error: 'email and password required' });
     }
-    const username = email.split('@')[0];
     const hashed = await hashPassword(password);
 
     // Insert user directly
     db.query(
-      'INSERT INTO users (email, password, username) VALUES (?, ?, ?)',
-      [email, hashed, username],
+      'INSERT INTO users (email, password) VALUES (?, ?)',
+      [email, hashed],
       (error: any, results: any) => {
         if (error) {
           console.error('User creation failed:', error);
