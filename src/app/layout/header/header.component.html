@@ -1,12 +1,17 @@
-<header class="bg-white/80 backdrop-blur-sm shadow-sm sticky top-0 z-40">
+<header class="bg-white shadow-sm sticky top-0 z-40">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between h-16">
-      <div class="flex items-center gap-6 cursor-pointer" routerLink="/">
-        <span class="text-xl font-bold text-indigo-600 hover:text-indigo-700">Angular Login/Signup Example</span>
+      <div class="flex items-center gap-8 cursor-pointer" routerLink="/">
+        <span class="text-2xl font-bold text-orange-600">CV Composer</span>
       </div>
+      <nav class="flex items-center gap-8">
+        <a routerLink="/builder" class="text-sm font-medium text-gray-700 hover:text-orange-600">Builder</a>
+        <a routerLink="/interview" class="text-sm font-medium text-gray-700 hover:text-orange-600">Interview Practice</a>
+        <a routerLink="/tests" class="text-sm font-medium text-gray-700 hover:text-orange-600">Mock Tests</a>
+      </nav>
       <nav class="flex items-center gap-4">
-        <a routerLink="/login" class="text-sm font-bold text-indigo-600 hover:text-indigo-700">Log in</a>
-        <a routerLink="/signup" class="font-semibold inline-flex items-center px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-sm rounded-md">Sign up</a>
+        <a routerLink="/login" class="text-sm font-medium text-gray-700 hover:text-orange-600">Login</a>
+        <a routerLink="/signup" class="font-semibold inline-flex items-center px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white text-sm rounded-md">Sign Up</a>
       </nav>
     </div>
   </div>
