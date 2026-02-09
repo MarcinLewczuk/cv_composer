@@ -159,13 +159,6 @@ server.post('/users', async (req: Request, res: Response) => {
         });
       }
     );
-    // Rebuild request body with hashed password
-    req.body = { email, password: hashed, username };
-    insert('users', ['email', 'password'])(req, {
-      status: (code: number) => ({
-        json: (payload: any) => res.status(code).json(sanitizeUser(payload)),
-      }),
-    } as Response); // Wrap to intercept response and sanitize
   } catch (e) {
     console.error('User creation failed:', e);
     res.status(500).json({ error: 'internal error' });
