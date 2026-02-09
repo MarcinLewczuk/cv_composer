@@ -1,0 +1,218 @@
+{
+  "info": {
+    "_postman_id": "cv-ai-integration",
+    "name": "CV AI Integration - Complete API",
+    "description": "Complete CV parsing, reviewing, improving, tailoring, and interview question generation API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Parse CV",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"cvText\": \"John Doe\\njohn@example.com\\n+1-555-0100\\nNew York, NY\\n\\nProfessional Summary:\\nExperienced software engineer with 5+ years of fullstack development specializing in cloud technologies and team leadership.\\n\\nWork Experience:\\nSenior Developer at Tech Corp (2020-2024)\\n- Led a team of 5 developers on multiple projects\\n- Increased application performance by 40% through optimization\\n- Designed and implemented microservices architecture\\n- Mentored 3 junior developers\\n\\nMiddleware Developer at StartupXYZ (2018-2020)\\n- Built REST APIs using Node.js and Express\\n- Implemented database optimization strategies\\n\\nEducation:\\nB.S. Computer Science\\nState University\\n2020\\n\\nCertifications:\\nAWS Solutions Architect Associate\\n2022\\nKubernetes Administrator Certified (CKA)\\n2023\\n\\nSkills:\\nTypeScript, Angular, Node.js, React, MySQL, MongoDB, AWS, Docker, Kubernetes, GraphQL, REST APIs, Python, Java\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/cv/parse",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": ["3000"],
+          "path": ["api", "cv", "parse"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "2. Review CV (Using cvJson)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"cvJson\": {\n    \"personalInfo\": {\n      \"name\": \"John Doe\",\n      \"email\": \"john@example.com\",\n      \"phone\": \"+1-555-0100\",\n      \"location\": \"New York, NY\"\n    },\n    \"summary\": \"Experienced software engineer with 5+ years of fullstack development specializing in cloud technologies and team leadership.\",\n    \"experience\": [\n      {\n        \"company\": \"Tech Corp\",\n        \"position\": \"Senior Developer\",\n        \"duration\": \"2020-2024\",\n        \"description\": \"Led a team of 5 developers on multiple projects. Increased application performance by 40%\",\n        \"achievements\": [\n          \"Designed and implemented microservices architecture\",\n          \"Mentored 3 junior developers\"\n        ]\n      },\n      {\n        \"company\": \"StartupXYZ\",\n        \"position\": \"Middleware Developer\",\n        \"duration\": \"2018-2020\",\n        \"description\": \"Built REST APIs using Node.js and Express\",\n        \"achievements\": [\n          \"Implemented database optimization strategies\"\n        ]\n      }\n    ],\n    \"education\": [\n      {\n        \"institution\": \"State University\",\n        \"degree\": \"B.S.\",\n        \"field\": \"Computer Science\",\n        \"graduationYear\": \"2020\"\n      }\n    ],\n    \"skills\": [\n      \"TypeScript\",\n      \"Angular\",\n      \"Node.js\",\n      \"React\",\n      \"MySQL\",\n      \"MongoDB\",\n      \"AWS\",\n      \"Docker\",\n      \"Kubernetes\"\n    ],\n    \"certifications\": [\n      {\n        \"name\": \"AWS Solutions Architect Associate\",\n        \"issuer\": \"Amazon Web Services\",\n        \"date\": \"2022\"\n      },\n      {\n        \"name\": \"Kubernetes Administrator Certified\",\n        \"issuer\": \"Linux Foundation\",\n        \"date\": \"2023\"\n      }\n    ]\n  }\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/cv/review",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": ["3000"],
+          "path": ["api", "cv", "review"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "3. Improve CV",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"cvJson\": {\n    \"personalInfo\": {\n      \"name\": \"John Doe\",\n      \"email\": \"john@example.com\",\n      \"phone\": \"+1-555-0100\",\n      \"location\": \"New York, NY\"\n    },\n    \"summary\": \"Experienced software engineer with 5+ years of fullstack development.\",\n    \"experience\": [\n      {\n        \"company\": \"Tech Corp\",\n        \"position\": \"Senior Developer\",\n        \"duration\": \"2020-2024\",\n        \"description\": \"Led a team of 5 developers. Increased application performance by 40%.\"\n      },\n      {\n        \"company\": \"StartupXYZ\",\n        \"position\": \"Middleware Developer\",\n        \"duration\": \"2018-2020\",\n        \"description\": \"Built REST APIs using Node.js and Express.\"\n      }\n    ],\n    \"education\": [\n      {\n        \"institution\": \"State University\",\n        \"degree\": \"B.S.\",\n        \"field\": \"Computer Science\",\n        \"graduationYear\": \"2020\"\n      }\n    ],\n    \"skills\": [\"TypeScript\", \"Angular\", \"Node.js\", \"React\", \"AWS\"],\n    \"certifications\": [\n      {\n        \"name\": \"AWS Solutions Architect Associate\",\n        \"issuer\": \"Amazon Web Services\",\n        \"date\": \"2022\"\n      }\n    ]\n  }\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/cv/improve",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": ["3000"],
+          "path": ["api", "cv", "improve"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "4. Tailor CV for Job",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"cvJson\": {\n    \"personalInfo\": {\n      \"name\": \"John Doe\",\n      \"email\": \"john@example.com\",\n      \"phone\": \"+1-555-0100\",\n      \"location\": \"New York, NY\"\n    },\n    \"summary\": \"Experienced software engineer with 5+ years of fullstack development.\",\n    \"experience\": [\n      {\n        \"company\": \"Tech Corp\",\n        \"position\": \"Senior Developer\",\n        \"duration\": \"2020-2024\",\n        \"description\": \"Led a team of 5 developers. Increased application performance by 40%. Designed microservices architecture.\"\n      },\n      {\n        \"company\": \"StartupXYZ\",\n        \"position\": \"Middleware Developer\",\n        \"duration\": \"2018-2020\",\n        \"description\": \"Built REST APIs using Node.js and Express. Implemented database optimization.\"\n      }\n    ],\n    \"education\": [\n      {\n        \"institution\": \"State University\",\n        \"degree\": \"B.S.\",\n        \"field\": \"Computer Science\",\n        \"graduationYear\": \"2020\"\n      }\n    ],\n    \"skills\": [\"TypeScript\", \"Angular\", \"Node.js\", \"React\", \"AWS\", \"Docker\", \"Kubernetes\", \"Python\"],\n    \"certifications\": [\n      {\n        \"name\": \"AWS Solutions Architect Associate\",\n        \"issuer\": \"Amazon Web Services\",\n        \"date\": \"2022\"\n      }\n    ]\n  },\n  \"jobBrief\": \"We are seeking a Senior Full Stack Developer with:\\n- 5+ years of professional development experience\\n- Strong expertise in TypeScript and Node.js\\n- Experience with Angular or React\\n- AWS cloud platform knowledge\\n- Team leadership and mentoring experience\\n- Container orchestration (Docker/Kubernetes)\\n\\nResponsibilities:\\n- Design and implement scalable backend systems\\n- Build responsive frontend interfaces\\n- Mentor junior developers and conduct code reviews\\n- Participate in architectural decisions\\n- Optimize application performance\\n- Implement CI/CD pipelines\\n\\nNice to have:\\n- AWS certifications\\n- Microservices architecture experience\\n- GraphQL experience\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/cv/tailor",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": ["3000"],
+          "path": ["api", "cv", "tailor"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "5. Generate Interview Questions",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"cvJson\": {\n    \"personalInfo\": {\n      \"name\": \"John Doe\",\n      \"email\": \"john@example.com\",\n      \"phone\": \"+1-555-0100\",\n      \"location\": \"New York, NY\"\n    },\n    \"summary\": \"Experienced software engineer with 5+ years of fullstack development.\",\n    \"experience\": [\n      {\n        \"company\": \"Tech Corp\",\n        \"position\": \"Senior Developer\",\n        \"duration\": \"2020-2024\",\n        \"description\": \"Led a team of 5 developers. Increased application performance by 40%.\"\n      }\n    ],\n    \"education\": [\n      {\n        \"institution\": \"State University\",\n        \"degree\": \"B.S.\",\n        \"field\": \"Computer Science\",\n        \"graduationYear\": \"2020\"\n      }\n    ],\n    \"skills\": [\"TypeScript\", \"Angular\", \"Node.js\", \"React\", \"AWS\"],\n    \"certifications\": [\n      {\n        \"name\": \"AWS Solutions Architect Associate\",\n        \"issuer\": \"Amazon Web Services\",\n        \"date\": \"2022\"\n      }\n    ]\n  },\n  \"jobBrief\": \"Senior Full Stack Developer position at Tech Corp. Requirements: 5+ years experience, TypeScript, Node.js, Angular/React, AWS, team leadership.\"\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/cv/generate-questions",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": ["3000"],
+          "path": ["api", "cv", "generate-questions"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "6. Save CV (Requires Auth)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Cookie",
+            "value": "auth_token=YOUR_AUTH_TOKEN_HERE"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"originalContent\": \"John Doe\\njohn@example.com\\n+1-555-0100\\nNew York, NY\\n\\nExperienced software engineer with 5+ years of fullstack development.\",\n  \"cvJson\": {\n    \"personalInfo\": {\n      \"name\": \"John Doe\",\n      \"email\": \"john@example.com\",\n      \"phone\": \"+1-555-0100\",\n      \"location\": \"New York, NY\"\n    },\n    \"summary\": \"Experienced software engineer with 5+ years of fullstack development.\",\n    \"experience\": [\n      {\n        \"company\": \"Tech Corp\",\n        \"position\": \"Senior Developer\",\n        \"duration\": \"2020-2024\",\n        \"description\": \"Led a team of 5 developers. Increased application performance by 40%.\"\n      }\n    ],\n    \"education\": [\n      {\n        \"institution\": \"State University\",\n        \"degree\": \"B.S.\",\n        \"field\": \"Computer Science\",\n        \"graduationYear\": \"2020\"\n      }\n    ],\n    \"skills\": [\"TypeScript\", \"Angular\", \"Node.js\", \"React\", \"AWS\"]\n  }\n}"
+        },
+        "url": {
+          "raw": "http://localhost:3000/api/cv/save",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": ["3000"],
+          "path": ["api", "cv", "save"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "7. Get All User CVs (Requires Auth)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Cookie",
+            "value": "auth_token=YOUR_AUTH_TOKEN_HERE"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:3000/api/cv",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": ["3000"],
+          "path": ["api", "cv"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "8. Get Specific CV (Requires Auth)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Cookie",
+            "value": "auth_token=YOUR_AUTH_TOKEN_HERE"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:3000/api/cv/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": ["3000"],
+          "path": ["api", "cv", "1"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "9. Delete CV (Requires Auth)",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Cookie",
+            "value": "auth_token=YOUR_AUTH_TOKEN_HERE"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:3000/api/cv/1",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": ["3000"],
+          "path": ["api", "cv", "1"]
+        }
+      },
+      "response": []
+    }
+  ]
+}

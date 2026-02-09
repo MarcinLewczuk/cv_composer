@@ -11,6 +11,17 @@ import cors from 'cors';
 import mysql from 'mysql2';
 import { insert, selectAll, selectColumn, loginUser } from './queries';
 import { hashPassword, sanitizeUser } from './security/password';
+import {
+  parseCVHandler,
+  reviewCVHandler,
+  improveCVHandler,
+  tailorCVHandler,
+  saveCVHandler,
+  getCVHandler,
+  getUserCVsHandler,
+  generateQuestionsHandler,
+  deleteCVHandler,
+} from './controllers/cvController';
 
 // Initialize Express application with middleware.
 const server = express();
@@ -26,7 +37,7 @@ const db = mysql.createConnection({
   port: Number(process.env['DB_PORT']),
   user: process.env['DB_USER'],
   password: process.env['DB_PASS'],
-  database: process.env['DB_NAME']
+  database: process.env['DB_NAME'],
 });
 
 // Export database connection for use in queries.ts
@@ -95,8 +106,8 @@ server.post('/users', async (req: Request, res: Response) => {
     req.body = { email, password: hashed, username };
     insert('users', ['email', 'password'])(req, {
       status: (code: number) => ({
-        json: (payload: any) => res.status(code).json(sanitizeUser(payload))
-      })
+        json: (payload: any) => res.status(code).json(sanitizeUser(payload)),
+      }),
     } as Response); // Wrap to intercept response and sanitize
   } catch (e) {
     console.error('User creation failed:', e);
@@ -112,3 +123,61 @@ server.post('/users', async (req: Request, res: Response) => {
  * - Returns 401 Unauthorized on invalid credentials
  */
 server.post('/users/login', loginUser('users'));
+
+// ============================================
+// CV AI ROUTES
+// ============================================
+
+/**
+ * POST /api/cv/parse
+ * Parse CV text to structured JSON
+ */
+server.post('/api/cv/parse', parseCVHandler);
+
+/**
+ * POST /api/cv/review
+ * Review parsed CV for structure and style issues
+ */
+server.post('/api/cv/review', reviewCVHandler);
+
+/**
+ * POST /api/cv/improve
+ * Improve CV language and structure
+ */
+server.post('/api/cv/improve', improveCVHandler);
+
+/**
+ * POST /api/cv/tailor
+ * Tailor CV for specific job description
+ */
+server.post('/api/cv/tailor', tailorCVHandler);
+
+/**
+ * POST /api/cv/save
+ * Save CV to database (requires authentication)
+ */
+server.post('/api/cv/save', saveCVHandler);
+
+/**
+ * GET /api/cv
+ * Get all CVs for current user (requires authentication)
+ */
+server.get('/api/cv', getUserCVsHandler);
+
+/**
+ * GET /api/cv/:id
+ * Get specific CV by ID (requires authentication)
+ */
+server.get('/api/cv/:id', getCVHandler);
+
+/**
+ * DELETE /api/cv/:id
+ * Delete CV by ID (requires authentication)
+ */
+server.delete('/api/cv/:id', deleteCVHandler);
+
+/**
+ * POST /api/cv/generate-questions
+ * Generate interview questions based on CV and job
+ */
+server.post('/api/cv/generate-questions', generateQuestionsHandler);
