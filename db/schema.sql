@@ -1,3 +1,10 @@
+CREATE TABLE IF NOT EXISTS `users` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `email` varchar(55) NOT NULL UNIQUE,
+  `password` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 -- CV main table
 CREATE TABLE IF NOT EXISTS `cvs` (
   `id` int NOT NULL AUTO_INCREMENT,
@@ -91,4 +98,19 @@ CREATE TABLE IF NOT EXISTS `interview_messages` (
   FOREIGN KEY (`interviewId`) REFERENCES `interviews`(`id`) ON DELETE CASCADE,
   FOREIGN KEY (`createdBy`) REFERENCES `users`(`id`) ON DELETE SET NULL,
   KEY `idx_interviewId_createdAt` (`interviewId`, `createdAt`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- File uploads table for CV files
+CREATE TABLE IF NOT EXISTS `file_uploads` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `fileName` varchar(255) NOT NULL,
+  `originalFileName` varchar(255) NOT NULL,
+  `fileSize` int NOT NULL,
+  `mimeType` varchar(100),
+  `filePath` varchar(500) NOT NULL,
+  `createdBy` int NOT NULL,
+  `createdAt` timestamp DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`createdBy`) REFERENCES `users`(`id`) ON DELETE CASCADE,
+  KEY `idx_createdBy_createdAt` (`createdBy`, `createdAt`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
