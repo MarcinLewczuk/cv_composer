@@ -23,6 +23,26 @@ export function selectAll(tableName: string) {
 }
 
 /**
+ * Retrieves all users without sensitive fields.
+ * Explicitly selects only non-sensitive columns.
+ */
+export function selectAllUsersSafe() {
+    return (req: Request, res: Response) => {
+        db.query(
+            'SELECT id, email FROM users',
+            (error: QueryError | null, results: any[]) => {
+                if (error) {
+                    console.error('GET from "users" failed:', error);
+                    res.status(500).json({ error: 'Internal server error' });
+                } else {
+                    res.json(results);
+                }
+            }
+        );
+    };
+}
+
+/**
  * Retrieves records by filtering on a specific column.
  * @param tableName The name of the table to query.
  * @param columnName The column name to filter by.
