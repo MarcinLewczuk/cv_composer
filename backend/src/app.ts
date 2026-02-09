@@ -9,13 +9,55 @@ dotenv.config({ path: envPath });
 import express, { Request, Response } from 'express';
 import cors from 'cors';
 import mysql from 'mysql2';
+import multer from 'multer';
+import fs from 'fs';
 import { insert, selectAll, selectColumn, loginUser } from './queries';
 import { hashPassword, sanitizeUser } from './security/password';
 
 // Initialize Express application with middleware.
 const server = express();
+
+// Create uploads directory if it doesn't exist
+const uploadsDir = path.resolve(process.cwd(), 'public/uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir, { recursive: true });
+  console.log('Created uploads directory:', uploadsDir);
+}
+
+// Setup middleware
 server.use(express.json()); // Parse incoming JSON request bodies
 server.use(cors()); // Enable Cross-Origin Resource Sharing
+
+// Serve static files from public directory for file downloads
+server.use('/uploads', express.static(uploadsDir));
+console.log('Static files path configured:', uploadsDir);
+
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, uploadsDir);
+  },
+  filename: (req, file, cb) => {
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+    const ext = path.extname(file.originalname);
+    const name = path.basename(file.originalname, ext);
+    cb(null, name + '-' + uniqueSuffix + ext);
+  }
+});
+
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+  fileFilter: (req, file, cb) => {
+    // Only allow PDF and common document formats
+    const allowedMimes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'];
+    if (allowedMimes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only PDF, DOC, DOCX, and TXT files are allowed'));
+    }
+  }
+});
 
 /**
  * MySQL database connection pool.
@@ -112,3 +154,76 @@ server.post('/users', async (req: Request, res: Response) => {
  * - Returns 401 Unauthorized on invalid credentials
  */
 server.post('/users/login', loginUser('users'));
+
+/**
+ * POST /upload
+ * Uploads a CV file and stores metadata in database
+ * - Requires authentication (userId in request body or headers)
+ * - Accepts PDF, DOC, DOCX, and TXT files (10MB max)
+ * - Stores file in public/uploads directory
+ * - Records file metadata in file_uploads table
+ */
+server.post('/upload', upload.single('file'), async (req: Request, res: Response) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+    }
+
+    const userId = req.body.userId;
+    if (!userId) {
+      return res.status(400).json({ error: 'userId is required' });
+    }
+
+    const { originalname, filename, size, mimetype } = req.file;
+    const filePath = `/uploads/${filename}`;
+
+    // Insert file metadata into database
+    const query = 'INSERT INTO file_uploads (fileName, originalFileName, fileSize, mimeType, filePath, createdBy) VALUES (?, ?, ?, ?, ?, ?)';
+    db.query(query, [filename, originalname, size, mimetype, filePath, userId], (error: mysql.QueryError | null, results: any) => {
+      if (error) {
+        console.error('Error saving file metadata:', error);
+        // Clean up uploaded file if database insert fails
+        fs.unlink(path.join(uploadsDir, filename), (unlinkError) => {
+          if (unlinkError) console.error('Error deleting file:', unlinkError);
+        });
+        return res.status(500).json({ error: 'Failed to save file metadata' });
+      }
+
+      res.json({
+        success: true,
+        fileId: results.insertId,
+        fileName: originalname,
+        filePath: filePath,
+        fileSize: size,
+        message: 'File uploaded successfully'
+      });
+    });
+  } catch (error) {
+    console.error('Upload error:', error);
+    res.status(500).json({ error: 'File upload failed' });
+  }
+});
+
+/**
+ * GET /uploads/:userId
+ * Retrieves all uploaded files for a user
+ */
+server.get('/uploads/:userId', async (req: Request, res: Response) => {
+  try {
+    const userId = req.params.userId;
+    const query = 'SELECT id, fileName, originalFileName, fileSize, mimeType, filePath, createdAt FROM file_uploads WHERE createdBy = ? ORDER BY createdAt DESC';
+    
+    db.query(query, [userId], (error: mysql.QueryError | null, results: any) => {
+      if (error) {
+        console.error('Error retrieving files:', error);
+        return res.status(500).json({ error: 'Failed to retrieve files' });
+      }
+      
+      res.json(results || []);
+    });
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
