@@ -1,0 +1,52 @@
+/* CV Upload Component Styles */
+
+:host {
+  display: block;
+}
+
+/* Drag and drop states */
+.upload-area {
+  transition: all 0.3s ease;
+}
+
+.upload-area:hover {
+  border-color: #ea580c;
+  background-color: rgba(234, 88, 12, 0.02);
+}
+
+.upload-area.dragging {
+  border-color: #ea580c;
+  background-color: rgba(234, 88, 12, 0.05);
+}
+
+/* File input styles */
+input[type="file"] {
+  display: none;
+}
+
+/* Progress bar animation */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.file-item {
+  animation: slideIn 0.3s ease;
+}
+
+/* Button states */
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+button:not(:disabled):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
