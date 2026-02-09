@@ -10,6 +10,7 @@ import PasswordValidation from '../../validators/password.validator';
 
 @Component({
   selector: 'app-signup',
+  standalone: true,
   imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './signup.component.html',
 })

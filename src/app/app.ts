@@ -6,6 +6,7 @@ import { inject } from '@angular/core';
 
 @Component({
   selector: 'app-root',
+  standalone: true,
   imports: [RouterOutlet, HeaderComponent],
   templateUrl: './app.html',
 })

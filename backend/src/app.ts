@@ -6,13 +6,24 @@ const envPath = path.resolve(process.cwd(), 'backend/private/.env');
 console.log('Loading .env from:', envPath);
 dotenv.config({ path: envPath });
 
-import express, { Request, Response } from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import mysql from 'mysql2';
-import multer from 'multer';
+import multer, { FileFilterCallback } from 'multer';
 import fs from 'fs';
 import { insert, selectAll, selectColumn, loginUser } from './queries';
 import { hashPassword, sanitizeUser } from './security/password';
+import {
+  parseCVHandler,
+  reviewCVHandler,
+  improveCVHandler,
+  tailorCVHandler,
+  saveCVHandler,
+  getCVHandler,
+  getUserCVsHandler,
+  generateQuestionsHandler,
+  deleteCVHandler,
+} from './controllers/cvController';
 import { verifyToken, generateToken } from './security/auth';
 
 // Initialize Express application with middleware.
@@ -25,7 +36,6 @@ if (!fs.existsSync(uploadsDir)) {
   console.log('Created uploads directory:', uploadsDir);
 }
 
-// Setup middleware
 server.use(express.json()); // Parse incoming JSON request bodies
 server.use(cors()); // Enable Cross-Origin Resource Sharing
 
@@ -35,10 +45,10 @@ console.log('Static files path configured:', uploadsDir);
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
+  destination: (req: Request, file: Express.Multer.File, cb: (error: Error | null, destination: string) => void) => {
     cb(null, uploadsDir);
   },
-  filename: (req, file, cb) => {
+  filename: (req: Request, file: Express.Multer.File, cb: (error: Error | null, filename: string) => void) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
     const ext = path.extname(file.originalname);
     const name = path.basename(file.originalname, ext);
@@ -49,7 +59,7 @@ const storage = multer.diskStorage({
 const upload = multer({
   storage: storage,
   limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
-  fileFilter: (req, file, cb) => {
+  fileFilter: (req: Request, file: Express.Multer.File, cb: FileFilterCallback) => {
     // Only allow PDF and common document formats
     const allowedMimes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'];
     if (allowedMimes.includes(file.mimetype)) {
@@ -101,12 +111,29 @@ server.listen(process.env['PORT'], (error?: Error) => {
 // ROUTES
 // ============================================
 
+function requireAdminApiKey(req: Request, res: Response, next: NextFunction) {
+  const expected = process.env['ADMIN_API_KEY'];
+  if (!expected) {
+    return res.status(500).json({ error: 'server not configured' });
+  }
+  const authHeader = req.headers['authorization'] || '';
+  const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : '';
+  if (token !== expected) {
+    return res.status(401).json({ error: 'unauthorized' });
+  }
+  next();
+}
+
+// ============================================
+// ROUTES
+// ============================================
+
 /**
  * GET /users
  * Retrieves all users from the database.
  */
 server.get('/users', (req: Request, res: Response) => {
-  selectAll('users')(req, res);
+  requireAdminApiKey(req, res, () => selectAll('users')(req, res));
 });
 
 /**
@@ -121,7 +148,6 @@ server.get('/users/email', (req: Request, res: Response) => {
  * POST /users
  * Creates a new user account with email and password.
  * - Validates required fields (email, password)
- * - Derives username from email
  * - Hashes password using bcrypt
  * - Returns JWT token and sanitized user object (without password)
  */
@@ -131,13 +157,12 @@ server.post('/users', async (req: Request, res: Response) => {
     if (!email || !password) {
       return res.status(400).json({ error: 'email and password required' });
     }
-    const username = email.split('@')[0];
     const hashed = await hashPassword(password);
 
     // Insert user directly
     db.query(
-      'INSERT INTO users (email, password, username) VALUES (?, ?, ?)',
-      [email, hashed, username],
+      'INSERT INTO users (email, password) VALUES (?, ?)',
+      [email, hashed],
       (error: any, results: any) => {
         if (error) {
           console.error('User creation failed:', error);
@@ -162,7 +187,7 @@ server.post('/users', async (req: Request, res: Response) => {
  * POST /users/login
  * Authenticates a user by email and password.
  * - Verifies credentials against bcrypt-hashed password
- * - Returns JWT token and sanitized user object (without password) on success
+ * - Returns sanitized user object (without password) on success
  * - Returns 401 Unauthorized on invalid credentials
  */
 server.post('/users/login', loginUser('users'));
@@ -207,7 +232,7 @@ server.post('/upload', upload.single('file'), async (req: Request, res: Response
       if (error) {
         console.error('Error saving file metadata:', error);
         // Clean up uploaded file if database insert fails
-        fs.unlink(path.join(uploadsDir, filename), (unlinkError) => {
+        fs.unlink(path.join(uploadsDir, filename), (unlinkError: NodeJS.ErrnoException | null) => {
           if (unlinkError) console.error('Error deleting file:', unlinkError);
         });
         return res.status(500).json({ error: 'Failed to save file metadata' });
@@ -325,3 +350,60 @@ server.post('/parse-cv', async (req: Request, res: Response) => {
   }
 });
 
+// ============================================
+// CV AI ROUTES
+// ============================================
+
+/**
+ * POST /api/cv/parse
+ * Parse CV text to structured JSON
+ */
+server.post('/api/cv/parse', parseCVHandler);
+
+/**
+ * POST /api/cv/review
+ * Review parsed CV for structure and style issues
+ */
+server.post('/api/cv/review', reviewCVHandler);
+
+/**
+ * POST /api/cv/improve
+ * Improve CV language and structure
+ */
+server.post('/api/cv/improve', improveCVHandler);
+
+/**
+ * POST /api/cv/tailor
+ * Tailor CV for specific job description
+ */
+server.post('/api/cv/tailor', tailorCVHandler);
+
+/**
+ * POST /api/cv/save
+ * Save CV to database (requires authentication)
+ */
+server.post('/api/cv/save', saveCVHandler);
+
+/**
+ * GET /api/cv
+ * Get all CVs for current user (requires authentication)
+ */
+server.get('/api/cv', getUserCVsHandler);
+
+/**
+ * GET /api/cv/:id
+ * Get specific CV by ID (requires authentication)
+ */
+server.get('/api/cv/:id', getCVHandler);
+
+/**
+ * DELETE /api/cv/:id
+ * Delete CV by ID (requires authentication)
+ */
+server.delete('/api/cv/:id', deleteCVHandler);
+
+/**
+ * POST /api/cv/generate-questions
+ * Generate interview questions based on CV and job
+ */
+server.post('/api/cv/generate-questions', generateQuestionsHandler);
