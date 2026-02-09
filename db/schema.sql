@@ -1,5 +1,12 @@
+CREATE TABLE `users` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `email` varchar(55) NOT NULL UNIQUE,
+  `password` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 -- CV main table
-CREATE TABLE IF NOT EXISTS `cvs` (
+CREATE TABLE `cvs` (
   `id` int NOT NULL AUTO_INCREMENT,
   `originalContent` longtext NOT NULL,
   `fullName` varchar(255),
@@ -16,7 +23,7 @@ CREATE TABLE IF NOT EXISTS `cvs` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Experience table
-CREATE TABLE IF NOT EXISTS `experiences` (
+CREATE TABLE `experiences` (
   `id` int NOT NULL AUTO_INCREMENT,
   `cvId` int NOT NULL,
   `company` varchar(255) NOT NULL,
@@ -30,7 +37,7 @@ CREATE TABLE IF NOT EXISTS `experiences` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Education table
-CREATE TABLE IF NOT EXISTS `educations` (
+CREATE TABLE `educations` (
   `id` int NOT NULL AUTO_INCREMENT,
   `cvId` int NOT NULL,
   `institution` varchar(255) NOT NULL,
@@ -44,7 +51,7 @@ CREATE TABLE IF NOT EXISTS `educations` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Certifications table
-CREATE TABLE IF NOT EXISTS `certifications` (
+CREATE TABLE `certifications` (
   `id` int NOT NULL AUTO_INCREMENT,
   `cvId` int NOT NULL,
   `name` varchar(255) NOT NULL,
@@ -57,7 +64,7 @@ CREATE TABLE IF NOT EXISTS `certifications` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Skills table
-CREATE TABLE IF NOT EXISTS `skills` (
+CREATE TABLE `skills` (
   `id` int NOT NULL AUTO_INCREMENT,
   `cvId` int NOT NULL,
   `skill` varchar(255) NOT NULL,
@@ -68,7 +75,7 @@ CREATE TABLE IF NOT EXISTS `skills` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Interview main table
-CREATE TABLE IF NOT EXISTS `interviews` (
+CREATE TABLE `interviews` (
   `id` int NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   `createdBy` int NOT NULL,
@@ -80,7 +87,7 @@ CREATE TABLE IF NOT EXISTS `interviews` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Interview Messages table
-CREATE TABLE IF NOT EXISTS `interview_messages` (
+CREATE TABLE `interview_messages` (
   `id` int NOT NULL AUTO_INCREMENT,
   `interviewId` int NOT NULL,
   `content` longtext NOT NULL,
