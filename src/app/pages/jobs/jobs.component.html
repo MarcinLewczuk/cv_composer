@@ -1,0 +1,188 @@
+<main class="min-h-screen bg-gray-50">
+  <!-- Header -->
+  <section class="bg-orange-600 text-white py-12">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <h1 class="text-4xl sm:text-5xl font-bold mb-4">Search Jobs</h1>
+      <p class="text-lg text-orange-100">Find your next opportunity and land your dream job</p>
+    </div>
+  </section>
+
+  <!-- Main Content -->
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+      <!-- Filters Sidebar -->
+      <div class="lg:col-span-1">
+        <div class="bg-white rounded-lg shadow-md p-6 sticky top-4">
+          <div class="flex justify-between items-center mb-6">
+            <h2 class="text-xl font-bold text-gray-900">Filters</h2>
+            <button (click)="resetFilters()" class="text-orange-600 hover:text-orange-700 text-sm font-semibold">
+              Reset
+            </button>
+          </div>
+
+          <!-- Search Box -->
+          <div class="mb-6">
+            <label class="block text-sm font-semibold text-gray-900 mb-2">Search Jobs</label>
+            <input
+              type="text"
+              [(ngModel)]="searchQuery"
+              (ngModelChange)="onSearchChange()"
+              placeholder="Job title, company..."
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600"
+            />
+          </div>
+
+          <!-- Job Type Filter -->
+          <div class="mb-6">
+            <label class="block text-sm font-semibold text-gray-900 mb-2">Job Type</label>
+            <select
+              [(ngModel)]="selectedType"
+              (ngModelChange)="onFilterChange()"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600"
+            >
+              <option value="">All Types</option>
+              <option *ngFor="let type of jobTypes" [value]="type">{{ type }}</option>
+            </select>
+          </div>
+
+          <!-- Location Filter -->
+          <div class="mb-6">
+            <label class="block text-sm font-semibold text-gray-900 mb-2">Location</label>
+            <select
+              [(ngModel)]="selectedLocation"
+              (ngModelChange)="onFilterChange()"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600"
+            >
+              <option value="">All Locations</option>
+              <option *ngFor="let location of locations" [value]="location">{{ location }}</option>
+            </select>
+          </div>
+
+          <!-- Salary Filter -->
+          <div class="mb-6">
+            <label class="block text-sm font-semibold text-gray-900 mb-2">Salary Range</label>
+            <select
+              [(ngModel)]="selectedSalary"
+              (ngModelChange)="onFilterChange()"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600"
+            >
+              <option value="">All Ranges</option>
+              <option *ngFor="let range of salaryRanges" [value]="range">{{ range }}</option>
+            </select>
+          </div>
+
+          <!-- Experience Level Filter -->
+          <div class="mb-6">
+            <label class="block text-sm font-semibold text-gray-900 mb-2">Experience Level</label>
+            <select
+              [(ngModel)]="selectedExperience"
+              (ngModelChange)="onFilterChange()"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600"
+            >
+              <option value="">All Levels</option>
+              <option *ngFor="let level of experienceLevels" [value]="level">{{ level }}</option>
+            </select>
+          </div>
+
+          <!-- Programming Language Filter -->
+          <div class="mb-6">
+            <label class="block text-sm font-semibold text-gray-900 mb-2">Programming Language</label>
+            <select
+              [(ngModel)]="selectedLanguage"
+              (ngModelChange)="onFilterChange()"
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-600"
+            >
+              <option value="">All Languages</option>
+              <option *ngFor="let lang of programmingLanguages" [value]="lang">{{ lang }}</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Jobs List -->
+      <div class="lg:col-span-3">
+        <!-- Results Info -->
+        <div class="mb-6">
+          <p class="text-gray-600">Showing <span class="font-semibold text-gray-900">{{ filteredJobs.length }}</span> job(s)</p>
+        </div>
+
+        <!-- Jobs Cards -->
+        <div *ngIf="filteredJobs.length > 0; else noResults" class="space-y-4">
+          <div *ngFor="let job of filteredJobs" class="bg-white rounded-lg shadow-md hover:shadow-lg transition p-6">
+            <div class="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-4">
+              <div class="flex-1">
+                <h3 class="text-xl font-bold text-gray-900 mb-1">{{ job.title }}</h3>
+                <p class="text-gray-600 font-semibold mb-3">{{ job.company }}</p>
+
+                <!-- Job Meta Information -->
+                <div class="flex flex-wrap gap-3 mb-4 text-sm">
+                  <span class="inline-flex items-center px-3 py-1 rounded-full bg-orange-100 text-orange-800 font-semibold">
+                    {{ job.type }}
+                  </span>
+                  <span class="inline-flex items-center px-3 py-1 rounded-full bg-blue-100 text-blue-800">
+                    <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+                    </svg>
+                    {{ job.location }}
+                  </span>
+                  <span class="inline-flex items-center px-3 py-1 rounded-full bg-green-100 text-green-800">
+                    <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M8.16 5.314l4.897-1.596c.165-.054.341.057.354.23l.506 6.948a1.413 1.413 0 01-1.13 1.403l-4.884.333a.25.25 0 01-.267-.248l-.502-6.94a.25.25 0 01.226-.27z"/>
+                    </svg>
+                    {{ job.salary }}
+                  </span>
+                </div>
+
+                <!-- Description -->
+                <p class="text-gray-600 mb-4">{{ job.description }}</p>
+
+                <!-- Languages -->
+                <div class="mb-4">
+                  <p class="text-sm font-semibold text-gray-900 mb-2">Required Technologies:</p>
+                  <div class="flex flex-wrap gap-2">
+                    <span *ngFor="let lang of job.languages" class="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm">
+                      {{ lang }}
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Experience Level -->
+                <div class="text-sm text-gray-600 mb-4">
+                  <span class="font-semibold">Experience Level:</span> {{ job.experience }}
+                </div>
+
+                <!-- Posted Date -->
+                <p class="text-xs text-gray-500">Posted {{ job.posted }}</p>
+              </div>
+
+              <!-- Apply Button -->
+              <button
+                (click)="applyForJob(job)"
+                class="w-full sm:w-auto px-6 py-2 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-lg transition duration-300 whitespace-nowrap"
+              >
+                Apply Now
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- No Results -->
+        <ng-template #noResults>
+          <div class="bg-white rounded-lg shadow-md p-12 text-center">
+            <svg class="w-16 h-16 text-gray-400 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            <h3 class="text-lg font-semibold text-gray-900 mb-2">No jobs found</h3>
+            <p class="text-gray-600 mb-6">Try adjusting your search or filter criteria</p>
+            <button
+              (click)="resetFilters()"
+              class="px-6 py-2 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-lg transition duration-300"
+            >
+              Reset Filters
+            </button>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+  </div>
+</main>
