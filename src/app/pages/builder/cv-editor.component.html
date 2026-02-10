@@ -419,7 +419,7 @@
             [disabled]="aiLoading"
             class="px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-semibold rounded-lg transition flex items-center justify-center gap-2"
           >
-            <span>🔨</span> Build CV
+            Build CV
           </button>
 
           <button
@@ -428,7 +428,7 @@
             [disabled]="aiLoading"
             class="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold rounded-lg transition flex items-center justify-center gap-2"
           >
-            <span>🎯</span> Tailor for Job
+            Tailor for Job
           </button>
 
           <button
@@ -437,7 +437,7 @@
             [disabled]="aiLoading"
             class="px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white font-semibold rounded-lg transition flex items-center justify-center gap-2"
           >
-            <span>❓</span> Interview Prep
+            Interview Prep
           </button>
         </div>
       </div>
@@ -518,21 +518,21 @@
             (click)="downloadCVAsDOCX()"
             class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition flex items-center justify-center gap-2"
           >
-            <span>📄</span> Download as DOCX
+            Download as DOCX
           </button>
           <button
             type="button"
             (click)="downloadCVAsPDF()"
             class="px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition flex items-center justify-center gap-2"
           >
-            <span>📕</span> Download as PDF
+            Download as PDF
           </button>
           <button
             type="button"
             (click)="downloadCVAsJSON()"
             class="px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-lg transition flex items-center justify-center gap-2"
           >
-            <span>📋</span> Download as JSON
+            Download as JSON
           </button>
         </div>
       </div>
@@ -545,7 +545,7 @@
         (click)="saveCVToDatabase()"
         class="px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-lg transition"
       >
-        {{ editingCVId ? 'Update CV' : 'Save to Database' }}
+        {{ editingCVId ? 'Update' : 'Save' }}
       </button>
       <button
         *ngIf="editingCVId"
@@ -586,7 +586,7 @@
             (click)="editCV(cv)"
             class="w-full px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm rounded-lg transition"
           >
-            ✏️ Edit
+            Edit
           </button>
 
           <!-- Download Dropdown -->
@@ -595,7 +595,7 @@
               type="button"
               class="w-full px-3 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold text-sm rounded-lg transition"
             >
-              📥 Download
+              Download
             </button>
 
             <div
@@ -630,7 +630,7 @@
             (click)="deleteCV(cv.id)"
             class="w-full px-3 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold text-sm rounded-lg transition"
           >
-            🗑️ Delete
+            Delete
           </button>
         </div>
       </div>

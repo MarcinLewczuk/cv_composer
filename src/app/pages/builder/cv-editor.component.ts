@@ -279,8 +279,8 @@ export class CVEditorComponent implements OnInit {
       next: (response: any) => {
         this.aiLoading = false;
         this.aiMessage = this.editingCVId
-          ? '✅ CV updated and saved to database!'
-          : '✅ CV saved to database successfully!';
+          ? 'CV updated and saved to database!'
+          : 'CV saved to database successfully!';
         this.editingCVId = null;
         this.displayedCV = null;
         this.showCVPreview = false;
@@ -342,7 +342,7 @@ export class CVEditorComponent implements OnInit {
     });
 
     this.showCVPreview = false;
-    this.aiMessage = `📝 Editing "${cv.fullName}" - Make your changes and click "Save to Database"`;
+    this.aiMessage = `Editing "${cv.fullName}" - Make your changes and click "Save"`;
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
@@ -356,7 +356,7 @@ export class CVEditorComponent implements OnInit {
 
     this.http.delete(`http://localhost:3000/api/cv/${cvId}`).subscribe({
       next: (response) => {
-        this.aiMessage = '✅ CV deleted successfully!';
+        this.aiMessage = 'CV deleted successfully!';
         this.loadSavedCVs();
       },
       error: (error) => {
@@ -476,7 +476,7 @@ export class CVEditorComponent implements OnInit {
         if (response.success) {
           this.displayedCV = response.data;
           this.showCVPreview = true;
-          this.aiMessage = '✅ CV built successfully! You can now download it.';
+          this.aiMessage = 'CV built successfully! You can now download it.';
         } else {
           this.aiError = response.message;
         }
@@ -632,7 +632,7 @@ export class CVEditorComponent implements OnInit {
       next: (response) => {
         this.aiLoading = false;
         if (response.success) {
-          this.aiMessage = '✅ CV tailored for the job! Updating form...';
+          this.aiMessage = 'CV tailored for the job! Updating form...';
           // Update form with tailored data
           this.updateFormWithCV(response.data);
           this.jobDescriptionInput = ''; // Clear job description input
@@ -670,7 +670,7 @@ export class CVEditorComponent implements OnInit {
         this.aiLoading = false;
         if (response.success) {
           const questionsText = response.data.map((q, i) => `${i + 1}. ${q}`).join('\n\n');
-          this.aiMessage = `✅ Interview Questions Generated!\n\n${questionsText}`;
+          this.aiMessage = `Interview Questions Generated!\n\n${questionsText}`;
         } else {
           this.aiError = response.message;
         }

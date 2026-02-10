@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { CVUploadComponent } from './cv-upload.component';
@@ -31,14 +31,36 @@ export class BuilderComponent {
   interviewQuestions: string[] = [];
 
   private aiService = inject(AIService);
+  private cdr = inject(ChangeDetectorRef);
 
   /**
    * Handle when a CV is selected from upload component
    */
   onUploadedCVSelected(event: any) {
     this.selectedUploadedCV = event;
-    if (event?.parsedCV) {
-      this.uploadedCVParsed = event.parsedCV;
+    this.clearMessages();
+    
+    // If we have cvText, parse it using AI service
+    if (event?.cvText) {
+      this.aiLoading = true;
+      this.aiMessage = 'Parsing CV...';
+      
+      this.aiService.parseCV(event.cvText).subscribe({
+        next: (response) => {
+          this.aiLoading = false;
+          if (response.success) {
+            this.uploadedCVParsed = response.data.parsedCV;
+            this.aiMessage = 'CV parsed successfully! You can now use AI features below.';
+            this.cdr.detectChanges();
+          } else {
+            this.aiError = response.message || 'Failed to parse CV';
+          }
+        },
+        error: (error) => {
+          this.aiLoading = false;
+          this.aiError = error.error?.message || 'Failed to parse CV. Please try again.';
+        }
+      });
     }
   }
 
@@ -50,12 +72,12 @@ export class BuilderComponent {
 
     this.aiLoading = true;
     this.clearMessages();
-    this.aiMessage = '📋 Reviewing your CV...';
+    this.aiMessage = 'Reviewing your CV...';
 
     this.aiService.reviewCV(this.uploadedCVParsed).subscribe({
       next: (response: any) => {
         this.aiLoading = false;
-        this.aiMessage = '✅ CV Review complete!';
+        this.aiMessage = 'CV Review complete!';
         this.reviewResult = response.data;
       },
       error: (error) => {
@@ -73,12 +95,12 @@ export class BuilderComponent {
 
     this.aiLoading = true;
     this.clearMessages();
-    this.aiMessage = '✨ Improving your CV language...';
+    this.aiMessage = 'Improving your CV...';
 
     this.aiService.improveCV(this.uploadedCVParsed).subscribe({
       next: (response: any) => {
         this.aiLoading = false;
-        this.aiMessage = '✅ CV language improved!';
+        this.aiMessage = 'CV improved!';
         this.improvedCV = response.data;
       },
       error: (error) => {
@@ -96,12 +118,12 @@ export class BuilderComponent {
 
     this.aiLoading = true;
     this.clearMessages();
-    this.aiMessage = '🎯 Tailoring your CV for the job...';
+    this.aiMessage = 'Tailoring your CV for the job...';
 
     this.aiService.tailorCVForJob(this.uploadedCVParsed, this.jobDescriptionInput).subscribe({
       next: (response: any) => {
         this.aiLoading = false;
-        this.aiMessage = '✅ CV tailored successfully!';
+        this.aiMessage = 'CV tailored successfully!';
         this.tailoredCV = response.data;
       },
       error: (error) => {
@@ -119,14 +141,14 @@ export class BuilderComponent {
 
     this.aiLoading = true;
     this.clearMessages();
-    this.aiMessage = '❓ Generating interview questions...';
+    this.aiMessage = 'Generating interview questions...';
 
     this.aiService
       .generateInterviewQuestions(this.uploadedCVParsed, this.jobDescriptionInput)
       .subscribe({
         next: (response: any) => {
           this.aiLoading = false;
-          this.aiMessage = '✅ Interview questions generated!';
+          this.aiMessage = 'Interview questions generated!';
           this.interviewQuestions = response.data;
         },
         error: (error) => {
