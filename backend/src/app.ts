@@ -24,6 +24,22 @@ import {
   generateQuestionsHandler,
   deleteCVHandler,
 } from './controllers/cvController';
+import {
+  generateTestHandler,
+  getTestsHandler,
+  getTestByIdHandler,
+  submitTestHandler,
+  getTestResultsHandler,
+  getTestResultByIdHandler,
+} from './controllers/testController';
+import {
+  generateInterviewHandler,
+  getInterviewSessionsHandler,
+  getInterviewSessionByIdHandler,
+  getQuestionDetailsHandler,
+  submitAnswerHandler,
+  getSessionResponsesHandler,
+} from './controllers/interviewController';
 import { verifyToken, generateToken } from './security/auth';
 
 // Initialize Express application with middleware.
@@ -407,3 +423,138 @@ server.delete('/api/cv/:id', deleteCVHandler);
  * Generate interview questions based on CV and job
  */
 server.post('/api/cv/generate-questions', generateQuestionsHandler);
+
+// ============================================
+// MOCK TEST ROUTES
+// ============================================
+
+/**
+ * POST /api/tests/generate
+ * Generate a new mock test using AI
+ * Requires authentication
+ */
+server.post('/api/tests/generate', verifyToken, generateTestHandler);
+
+/**
+ * GET /api/tests/results
+ * Get user's test results and statistics
+ * Requires authentication
+ * NOTE: This MUST come before /api/tests/:id to avoid route collision
+ */
+server.get('/api/tests/results', verifyToken, getTestResultsHandler);
+
+/**
+ * GET /api/tests/results/:id
+ * Get detailed result for a specific test submission
+ * Requires authentication
+ */
+server.get('/api/tests/results/:id', verifyToken, getTestResultByIdHandler);
+
+/**
+ * GET /api/tests
+ * Get all available tests
+ * Requires authentication
+ */
+server.get('/api/tests', verifyToken, getTestsHandler);
+
+/**
+ * GET /api/tests/:id
+ * Get specific test with questions (without answers)
+ * Requires authentication
+ */
+server.get('/api/tests/:id', verifyToken, getTestByIdHandler);
+
+/**
+ * POST /api/tests/:id/submit
+ * Submit test answers and get results
+ * Requires authentication
+ */
+server.post('/api/tests/:id/submit', verifyToken, submitTestHandler);
+
+/**
+ * GET /api/tests/test-api
+ * Test Anthropic API connection
+ * For debugging purposes - no auth required
+ */
+server.get('/api/tests/test-api', async (req: Request, res: Response) => {
+  try {
+    const Anthropic = require('@anthropic-ai/sdk');
+    const client = new Anthropic({
+      apiKey: process.env['ANTHROPIC_API_KEY'],
+    });
+
+    const message = await client.messages.create({
+      model: 'claude-3-haiku-20240307',
+      max_tokens: 100,
+      messages: [
+        {
+          role: 'user',
+          content: 'Say "API connection successful!" and nothing else.',
+        },
+      ],
+    });
+
+    res.json({
+      success: true,
+      message: 'API test successful',
+      response: message.content[0].text,
+      model: 'claude-3-haiku-20240307',
+    });
+  } catch (error: any) {
+    console.error('API test error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'API test failed',
+      error: error.message || String(error),
+    });
+  }
+});
+
+// ==========================================
+// Interview Practice Routes
+// ==========================================
+
+/**
+ * POST /api/interviews/generate
+ * Generate a new interview practice session with AI-generated questions
+ * Requires authentication
+ */
+server.post('/api/interviews/generate', verifyToken, generateInterviewHandler);
+
+/**
+ * GET /api/interviews/questions/:questionId
+ * Get question details including sample answer and tips
+ * Requires authentication
+ * NOTE: This MUST come before /api/interviews/:id to avoid route collision
+ */
+server.get('/api/interviews/questions/:questionId', verifyToken, getQuestionDetailsHandler);
+
+/**
+ * POST /api/interviews/submit-answer
+ * Submit an answer for a question
+ * Requires authentication
+ */
+server.post('/api/interviews/submit-answer', verifyToken, submitAnswerHandler);
+
+/**
+ * GET /api/interviews/:id/responses
+ * Get all responses for a session
+ * Requires authentication
+ * NOTE: This MUST come before /api/interviews/:id to avoid route collision
+ */
+server.get('/api/interviews/:id/responses', verifyToken, getSessionResponsesHandler);
+
+/**
+ * GET /api/interviews
+ * Get all interview sessions for the authenticated user
+ * Requires authentication
+ */
+server.get('/api/interviews', verifyToken, getInterviewSessionsHandler);
+
+/**
+ * GET /api/interviews/:id
+ * Get a specific interview session with all questions
+ * Requires authentication
+ */
+server.get('/api/interviews/:id', verifyToken, getInterviewSessionByIdHandler);
+

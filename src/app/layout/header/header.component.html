@@ -8,6 +8,7 @@
       <!-- Show navigation only when authenticated -->
       <nav *ngIf="auth.isAuthenticated()" class="flex items-center gap-8">
         <a routerLink="/builder" class="text-sm font-medium text-gray-700 hover:text-orange-600">Builder</a>
+        <a routerLink="/jobs" class="text-sm font-medium text-gray-700 hover:text-orange-600">Search Jobs</a>
         <a routerLink="/interview" class="text-sm font-medium text-gray-700 hover:text-orange-600">Interview Practice</a>
         <a routerLink="/tests" class="text-sm font-medium text-gray-700 hover:text-orange-600">Mock Tests</a>
       </nav>

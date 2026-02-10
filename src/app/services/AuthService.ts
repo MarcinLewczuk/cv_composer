@@ -72,7 +72,12 @@ export class AuthService {
 	}
 
 	getToken(): string | null {
-		return this.tokenSig();
+		// Try signal first, fallback to localStorage
+		const token = this.tokenSig();
+		if (token) return token;
+		
+		// Fallback: check localStorage directly
+		return localStorage.getItem('auth_token');
 	}
 
 	get currentUser(): AuthUser | null {
