@@ -1,68 +1,394 @@
 <main class="min-h-screen bg-gray-50">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <div class="mb-8">
-      <h1 class="text-4xl font-bold text-gray-900 mb-2">Interview Practice</h1>
-      <p class="text-lg text-gray-600">Practice common interview questions and get instant feedback</p>
-    </div>
+    
+    <!-- Loading Overlay -->
+    @if (isLoading) {
+      <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-8">
+          <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-orange-600 mx-auto"></div>
+          <p class="mt-4 text-gray-700 font-semibold">Loading...</p>
+        </div>
+      </div>
+    }
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-      <!-- Interview Sessions -->
-      <div class="lg:col-span-2">
-        <h2 class="text-2xl font-bold text-gray-900 mb-6">Practice Sessions</h2>
-        <div class="space-y-4">
-          <!-- Session Card 1 -->
-          <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition">
-            <h3 class="text-xl font-bold text-gray-900 mb-2">Behavioral Interviews</h3>
-            <p class="text-gray-600 mb-4">Practice common behavioral interview questions like 'Tell me about a time...'</p>
-            <div class="flex items-center justify-between">
-              <span class="text-sm text-gray-500">8 Questions</span>
-              <button class="bg-orange-600 hover:bg-orange-700 text-white font-semibold px-4 py-2 rounded-lg transition">Start Session</button>
+    <!-- Error Message -->
+    @if (errorMessage) {
+      <div class="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+        <span class="block sm:inline">{{ errorMessage }}</span>
+        <button (click)="errorMessage = ''" class="absolute top-0 bottom-0 right-0 px-4 py-3">
+          <svg class="fill-current h-6 w-6 text-red-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+            <path d="M14.348 14.849a1 1 0 01-1.414 0L10 11.414l-2.93 2.435a1 1 0 11-1.366-1.366l2.93-2.435-2.93-2.93a1 1 0 111.366-1.366l2.93 2.93 2.934-2.93a1 1 0 111.414 1.414l-2.934 2.93 2.934 2.934a1 1 0 010 1.415z"/>
+          </svg>
+        </button>
+      </div>
+    }
+
+    <!-- Session List View -->
+    @if (view === 'list') {
+      <div class="flex items-center justify-between mb-8">
+        <div>
+          <h1 class="text-4xl font-bold text-gray-900 mb-2">Interview Practice</h1>
+          <p class="text-lg text-gray-600">Practice job-specific interview questions with AI guidance</p>
+        </div>
+        <button 
+          (click)="showGenerateForm()"
+          class="px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-lg transition flex items-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+          </svg>
+          Generate Session
+        </button>
+      </div>
+
+      @if (!isLoading && sessions.length === 0) {
+        <div class="text-center py-16">
+          <svg class="w-24 h-24 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+          </svg>
+          <p class="text-gray-600 text-lg mb-4">No interview sessions yet</p>
+          <p class="text-gray-500 mb-6">Generate your first session to start practicing!</p>
+          <button 
+            (click)="showGenerateForm()"
+            class="px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-lg transition">
+            Generate First Session
+          </button>
+        </div>
+      }
+
+      @if (!isLoading && sessions.length > 0) {
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          @for (session of sessions; track session.id) {
+            <div class="bg-white rounded-lg shadow-md hover:shadow-xl transition p-6">
+          <div class="flex justify-between items-start mb-4">
+            <div class="flex-1">
+              <h3 class="text-xl font-bold text-gray-900 mb-1">{{ session.jobRole }}</h3>
+              <p class="text-sm text-gray-600 capitalize">{{ session.experienceLevel }} Level</p>
+            </div>
+            <span class="px-3 py-1 bg-orange-100 text-orange-700 text-sm font-semibold rounded-full">
+              {{ session.questionCount }} Questions
+            </span>
+          </div>
+          
+          <div class="mb-4">
+            <div class="flex justify-between text-sm text-gray-600 mb-1">
+              <span>Progress</span>
+              <span>{{ session.answeredCount || 0 }} / {{ session.questionCount }}</span>
+            </div>
+            <div class="w-full bg-gray-200 rounded-full h-2">
+              <div 
+                class="bg-orange-600 h-2 rounded-full transition-all duration-300"
+                [style.width.%]="((session.answeredCount || 0) / session.questionCount) * 100">
+              </div>
             </div>
           </div>
 
-          <!-- Session Card 2 -->
-          <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition">
-            <h3 class="text-xl font-bold text-gray-900 mb-2">Technical Interviews</h3>
-            <p class="text-gray-600 mb-4">Prepare for technical questions related to your field</p>
-            <div class="flex items-center justify-between">
-              <span class="text-sm text-gray-500">12 Questions</span>
-              <button class="bg-orange-600 hover:bg-orange-700 text-white font-semibold px-4 py-2 rounded-lg transition">Start Session</button>
+              <div class="flex gap-2">
+                <button 
+                  (click)="startSession(session.id)"
+                  class="flex-1 bg-orange-600 hover:bg-orange-700 text-white font-semibold px-4 py-2 rounded-lg transition">
+                  {{ session.answeredCount && session.answeredCount > 0 ? 'Continue' : 'Start' }} Practice
+                </button>
+                @if (session.answeredCount && session.answeredCount > 0) {
+                  <button 
+                    (click)="reviewSession(session.id)"
+                    class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-lg transition">
+                    Review
+                  </button>
+                }
+              </div>
+
+              <p class="text-xs text-gray-500 mt-3">
+                Created {{ session.createdAt | date: 'MMM d, y' }}
+              </p>
+            </div>
+          }
+        </div>
+      }
+    }
+
+    <!-- Generate Session Form -->
+    @if (view === 'generate') {
+      <div class="max-w-2xl mx-auto">
+      <button 
+        (click)="backToList()"
+        class="mb-6 flex items-center gap-2 text-gray-600 hover:text-gray-900 transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+        </svg>
+        Back to Sessions
+      </button>
+
+      <div class="bg-white rounded-lg shadow-md p-8">
+        <h2 class="text-3xl font-bold text-gray-900 mb-2">Generate Interview Session</h2>
+        <p class="text-gray-600 mb-8">Create a personalized interview practice session</p>
+
+        <form (ngSubmit)="generateSession()" class="space-y-6">
+          <div>
+            <label for="jobRole" class="block text-sm font-semibold text-gray-700 mb-2">
+              Job Role / Position
+            </label>
+            <input 
+              type="text" 
+              id="jobRole"
+              [(ngModel)]="generateForm.jobRole"
+              name="jobRole"
+              placeholder="e.g., Software Engineer, Marketing Manager, Data Scientist"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+              required>
+          </div>
+
+          <div>
+            <label for="experienceLevel" class="block text-sm font-semibold text-gray-700 mb-2">
+              Experience Level
+            </label>
+            <select 
+              id="experienceLevel"
+              [(ngModel)]="generateForm.experienceLevel"
+              name="experienceLevel"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+              <option value="entry">Entry Level (0-2 years)</option>
+              <option value="mid-level">Mid-Level (3-5 years)</option>
+              <option value="senior">Senior (6-10 years)</option>
+              <option value="lead">Lead/Principal (10+ years)</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="questionCount" class="block text-sm font-semibold text-gray-700 mb-2">
+              Number of Questions: {{ generateForm.questionCount }}
+            </label>
+            <input 
+              type="range" 
+              id="questionCount"
+              [(ngModel)]="generateForm.questionCount"
+              name="questionCount"
+              min="5"
+              max="20"
+              step="1"
+              class="w-full">
+            <div class="flex justify-between text-xs text-gray-500 mt-1">
+              <span>5</span>
+              <span>20</span>
             </div>
           </div>
 
-          <!-- Session Card 3 -->
-          <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition">
-            <h3 class="text-xl font-bold text-gray-900 mb-2">Role-Specific Interview</h3>
-            <p class="text-gray-600 mb-4">Industry-specific questions tailored to your profession</p>
-            <div class="flex items-center justify-between">
-              <span class="text-sm text-gray-500">15 Questions</span>
-              <button class="bg-orange-600 hover:bg-orange-700 text-white font-semibold px-4 py-2 rounded-lg transition">Start Session</button>
+          <div class="flex gap-4">
+            <button 
+              type="submit"
+              [disabled]="isLoading"
+              class="flex-1 bg-orange-600 hover:bg-orange-700 disabled:bg-gray-400 text-white font-semibold px-6 py-3 rounded-lg transition">
+              Generate Session
+            </button>
+            <button 
+              type="button"
+              (click)="backToList()"
+              class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-lg transition">
+              Cancel
+            </button>
+          </div>
+        </form>
+      </div>
+      </div>
+    }
+
+    <!-- Practice View -->
+    @if (view === 'practice' && currentSession) {
+      <div class="flex items-center justify-between mb-6">
+        <button 
+          (click)="backToList()"
+          class="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+          </svg>
+          Back to Sessions
+        </button>
+        <button 
+          (click)="finishPractice()"
+          class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition">
+          Finish & Review
+        </button>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-md p-8 mb-6">
+        <div class="mb-6">
+          <h2 class="text-2xl font-bold text-gray-900 mb-2">{{ currentSession.jobRole }}</h2>
+          <p class="text-gray-600 capitalize">{{ currentSession.experienceLevel }} Level Interview</p>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="mb-8">
+          <div class="flex justify-between text-sm text-gray-600 mb-2">
+            <span>Question {{ currentQuestionIndex + 1 }} of {{ currentSession.questions.length }}</span>
+            <span>{{ getAnsweredCount() }} answered</span>
+          </div>
+          <div class="w-full bg-gray-200 rounded-full h-3">
+            <div 
+              class="bg-orange-600 h-3 rounded-full transition-all duration-300"
+              [style.width.%]="getProgressPercentage()">
             </div>
           </div>
         </div>
+
+        <!-- Current Question -->
+        @if (getCurrentQuestion()) {
+          <div class="mb-6">
+            <div class="flex items-center gap-2 mb-4">
+              <span [class]="'px-3 py-1 text-xs font-semibold rounded-full ' + interviewService.getQuestionTypeColor(getCurrentQuestion()!.questionType)">
+                {{ getCurrentQuestion()!.questionType | titlecase }}
+              </span>
+            </div>
+            <h3 class="text-xl font-bold text-gray-900 mb-4">
+              {{ getCurrentQuestion()!.question }}
+            </h3>
+          </div>
+
+          <!-- Answer Input -->
+          <div class="mb-6">
+            <label class="block text-sm font-semibold text-gray-700 mb-2">
+              Your Answer
+            </label>
+            <textarea 
+              [(ngModel)]="currentAnswer"
+              rows="8"
+              placeholder="Type your answer here... Use the STAR method for behavioral questions (Situation, Task, Action, Result)"
+              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none">
+            </textarea>
+            <p class="text-xs text-gray-500 mt-2">
+              {{ currentAnswer.length }} characters
+            </p>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex gap-3 mb-6">
+            <button 
+              (click)="submitAnswer()"
+              [disabled]="!currentAnswer.trim()"
+              class="px-6 py-2 bg-orange-600 hover:bg-orange-700 disabled:bg-gray-300 text-white font-semibold rounded-lg transition">
+              Save Answer
+            </button>
+            <button 
+              (click)="toggleTips()"
+              class="px-6 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 font-semibold rounded-lg transition">
+              {{ showTips ? 'Hide' : 'Show' }} Tips
+            </button>
+            <button 
+              (click)="toggleSampleAnswer()"
+              class="px-6 py-2 bg-green-100 hover:bg-green-200 text-green-700 font-semibold rounded-lg transition">
+              {{ showSampleAnswer ? 'Hide' : 'Show' }} Sample Answer
+            </button>
+          </div>
+
+          <!-- Tips Section -->
+          @if (showTips && currentQuestionDetails) {
+            <div class="mb-6 bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
+              <h4 class="font-bold text-blue-900 mb-2 flex items-center gap-2">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                </svg>
+                Tips for Answering
+              </h4>
+              <p class="text-blue-800 whitespace-pre-wrap">{{ currentQuestionDetails.tips }}</p>
+            </div>
+          }
+
+          <!-- Sample Answer Section -->
+          @if (showSampleAnswer && currentQuestionDetails) {
+            <div class="mb-6 bg-green-50 border-l-4 border-green-500 p-4 rounded">
+              <h4 class="font-bold text-green-900 mb-2 flex items-center gap-2">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                </svg>
+                Sample Answer
+              </h4>
+              <p class="text-green-800 whitespace-pre-wrap">{{ currentQuestionDetails.sampleAnswer }}</p>
+            </div>
+          }
+
+          <!-- Navigation -->
+          <div class="flex justify-between mt-8 pt-6 border-t">
+            <button 
+              (click)="previousQuestion()"
+              [disabled]="currentQuestionIndex === 0"
+              class="px-6 py-2 bg-gray-200 hover:bg-gray-300 disabled:bg-gray-100 disabled:text-gray-400 text-gray-700 font-semibold rounded-lg transition flex items-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+              </svg>
+              Previous
+            </button>
+            <button 
+              (click)="nextQuestion()"
+              [disabled]="currentQuestionIndex >= currentSession.questions.length - 1"
+              class="px-6 py-2 bg-gray-200 hover:bg-gray-300 disabled:bg-gray-100 disabled:text-gray-400 text-gray-700 font-semibold rounded-lg transition flex items-center gap-2">
+              Next
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+              </svg>
+            </button>
+          </div>
+        }
+      </div>
+    }
+
+    <!-- Review View -->
+    @if (view === 'review') {
+      <div class="mb-6">
+        <button 
+          (click)="backToList()"
+          class="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition mb-4">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+          </svg>
+          Back to Sessions
+        </button>
+        <h2 class="text-3xl font-bold text-gray-900 mb-2">Session Review</h2>
+        <p class="text-gray-600">Review your answers and compare with sample responses</p>
       </div>
 
-      <!-- Stats Sidebar -->
-      <div>
-        <h2 class="text-2xl font-bold text-gray-900 mb-6">Your Progress</h2>
-        <div class="bg-white rounded-lg shadow-md p-6 space-y-4">
-          <div>
-            <p class="text-sm text-gray-600 mb-2">Sessions Completed</p>
-            <p class="text-3xl font-bold text-orange-600">0</p>
+      <div class="space-y-6">
+        @for (response of sessionResponses; track $index; let i = $index) {
+          <div class="bg-white rounded-lg shadow-md p-6">
+          <div class="mb-4">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-sm font-semibold text-gray-500">Question {{ i + 1 }}</span>
+              <span [class]="'px-3 py-1 text-xs font-semibold rounded-full ' + interviewService.getQuestionTypeColor(response.questionType)">
+                {{ response.questionType | titlecase }}
+              </span>
+            </div>
+            <h3 class="text-lg font-bold text-gray-900">{{ response.question }}</h3>
           </div>
-          <hr class="border-gray-200" />
-          <div>
-            <p class="text-sm text-gray-600 mb-2">Average Score</p>
-            <p class="text-3xl font-bold text-gray-900">—</p>
+
+          <div class="space-y-4">
+            <!-- Your Answer -->
+            @if (response.userAnswer) {
+              <div class="border-l-4 border-orange-500 bg-orange-50 p-4 rounded">
+                <h4 class="font-semibold text-orange-900 mb-2">Your Answer:</h4>
+                <p class="text-gray-800 whitespace-pre-wrap">{{ response.userAnswer }}</p>
+                <p class="text-xs text-gray-500 mt-2">
+                  Answered on {{ response.completedAt | date: 'MMM d, y, h:mm a' }}
+                </p>
+              </div>
+            } @else {
+              <div class="border-l-4 border-gray-300 bg-gray-50 p-4 rounded">
+                <p class="text-gray-500 italic">Not answered yet</p>
+              </div>
+            }
+
+            <!-- Sample Answer -->
+            <div class="border-l-4 border-green-500 bg-green-50 p-4 rounded">
+              <h4 class="font-semibold text-green-900 mb-2">Sample Answer:</h4>
+              <p class="text-gray-800 whitespace-pre-wrap">{{ response.sampleAnswer }}</p>
+            </div>
+
+            <!-- Tips -->
+            <div class="border-l-4 border-blue-500 bg-blue-50 p-4 rounded">
+              <h4 class="font-semibold text-blue-900 mb-2">Tips:</h4>
+              <p class="text-gray-800 whitespace-pre-wrap">{{ response.tips }}</p>
+            </div>
           </div>
-          <hr class="border-gray-200" />
-          <div>
-            <p class="text-sm text-gray-600 mb-2">Total Questions Answered</p>
-            <p class="text-3xl font-bold text-gray-900">0</p>
           </div>
-          <button class="w-full mt-4 bg-orange-100 text-orange-600 font-semibold py-2 rounded-lg hover:bg-orange-200 transition">View Full Stats</button>
-        </div>
+        }
       </div>
-    </div>
+    }
+
   </div>
 </main>
