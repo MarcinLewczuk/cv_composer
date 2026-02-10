@@ -6,8 +6,7 @@ import { CVEditorComponent } from './cv-editor.component';
 @Component({
   selector: 'app-builder',
   standalone: true,
-  imports: [CommonModule, RouterModule, CVUploadComponent, CVEditorComponent],
-  imports: [CommonModule, CVUploadComponent],
+  imports: [CommonModule, CVUploadComponent, CVEditorComponent],
   templateUrl: './builder.component.html',
 })
 export class BuilderComponent {}
