@@ -5,6 +5,7 @@ import { SignupComponent } from './pages/signup/signup.component';
 import { BuilderComponent } from './pages/builder/builder.component';
 import { InterviewComponent } from './pages/interview/interview.component';
 import { TestsComponent } from './pages/tests/tests.component';
+import { JobsComponent } from './pages/jobs/jobs.component';
 
 export const routes: Routes = [
     {
@@ -16,6 +17,11 @@ export const routes: Routes = [
         path: 'builder',
         component: BuilderComponent,
         title: 'CV Builder'
+    },
+    {
+        path: 'jobs',
+        component: JobsComponent,
+        title: 'Search Jobs'
     },
     {
         path: 'interview',
