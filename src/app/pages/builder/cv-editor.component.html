@@ -1,17 +1,18 @@
 <div class="bg-white rounded-lg shadow-md p-8">
   <h2 class="text-2xl font-bold text-gray-900 mb-6">CV Editor</h2>
-  
+
   <form [formGroup]="cvForm" (ngSubmit)="onSubmit()">
     <!-- Personal Information Section -->
     <div class="mb-6 border rounded-lg">
       <button
         type="button"
         (click)="toggleSection('personal')"
-        class="w-full px-6 py-4 bg-gray-50 hover:bg-gray-100 flex items-center justify-between font-semibold text-gray-900">
+        class="w-full px-6 py-4 bg-gray-50 hover:bg-gray-100 flex items-center justify-between font-semibold text-gray-900"
+      >
         <span>Personal Information</span>
         <span [class.rotate-180]="expandedSections.personal" class="transition-transform">▼</span>
       </button>
-      
+
       <div *ngIf="expandedSections.personal" class="p-6 border-t">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
           <!-- Full Name -->
@@ -21,9 +22,10 @@
               type="text"
               formControlName="fullName"
               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-              placeholder="John Doe">
+              placeholder="John Doe"
+            />
           </div>
-          
+
           <!-- Email -->
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
@@ -31,9 +33,10 @@
               type="email"
               formControlName="email"
               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-              placeholder="john@example.com">
+              placeholder="john@example.com"
+            />
           </div>
-          
+
           <!-- Phone -->
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">Phone</label>
@@ -41,9 +44,10 @@
               type="tel"
               formControlName="phone"
               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-              placeholder="+1 (555) 123-4567">
+              placeholder="+1 (555) 123-4567"
+            />
           </div>
-          
+
           <!-- Location -->
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">Location</label>
@@ -51,10 +55,11 @@
               type="text"
               formControlName="location"
               class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-              placeholder="New York, NY">
+              placeholder="New York, NY"
+            />
           </div>
         </div>
-        
+
         <!-- Summary -->
         <div class="mt-6">
           <label class="block text-sm font-medium text-gray-700 mb-2">Professional Summary</label>
@@ -62,7 +67,8 @@
             formControlName="summary"
             rows="4"
             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-            placeholder="Write a brief professional summary..."></textarea>
+            placeholder="Write a brief professional summary..."
+          ></textarea>
         </div>
       </div>
     </div>
@@ -72,24 +78,32 @@
       <button
         type="button"
         (click)="toggleSection('experiences')"
-        class="w-full px-6 py-4 bg-gray-50 hover:bg-gray-100 flex items-center justify-between font-semibold text-gray-900">
+        class="w-full px-6 py-4 bg-gray-50 hover:bg-gray-100 flex items-center justify-between font-semibold text-gray-900"
+      >
         <span>Work Experience</span>
-        <span [class.rotate-180]="expandedSections.experiences" class="transition-transform">▼</span>
+        <span [class.rotate-180]="expandedSections.experiences" class="transition-transform"
+          >▼</span
+        >
       </button>
-      
+
       <div *ngIf="expandedSections.experiences" class="p-6 border-t">
         <div formArrayName="experiences">
-          <div *ngFor="let experience of experiences.controls; let i = index" [formGroupName]="i" class="mb-6 p-4 bg-gray-50 rounded-lg">
+          <div
+            *ngFor="let experience of experiences.controls; let i = index"
+            [formGroupName]="i"
+            class="mb-6 p-4 bg-gray-50 rounded-lg"
+          >
             <div class="flex justify-between items-center mb-4">
               <h4 class="font-semibold text-gray-900">Experience {{ i + 1 }}</h4>
               <button
                 type="button"
                 (click)="removeExperience(i)"
-                class="text-red-600 hover:text-red-700 font-semibold">
+                class="text-red-600 hover:text-red-700 font-semibold"
+              >
                 Remove
               </button>
             </div>
-            
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <!-- Company -->
               <div>
@@ -98,9 +112,10 @@
                   type="text"
                   formControlName="company"
                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  placeholder="Company Name">
+                  placeholder="Company Name"
+                />
               </div>
-              
+
               <!-- Position -->
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Position</label>
@@ -108,9 +123,10 @@
                   type="text"
                   formControlName="position"
                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  placeholder="Job Title">
+                  placeholder="Job Title"
+                />
               </div>
-              
+
               <!-- Duration -->
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Duration</label>
@@ -118,10 +134,11 @@
                   type="text"
                   formControlName="duration"
                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  placeholder="e.g., Jan 2020 - Dec 2023">
+                  placeholder="e.g., Jan 2020 - Dec 2023"
+                />
               </div>
             </div>
-            
+
             <!-- Description -->
             <div class="mt-4">
               <label class="block text-sm font-medium text-gray-700 mb-2">Description</label>
@@ -129,15 +146,17 @@
                 formControlName="description"
                 rows="3"
                 class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                placeholder="Describe your responsibilities and achievements..."></textarea>
+                placeholder="Describe your responsibilities and achievements..."
+              ></textarea>
             </div>
           </div>
         </div>
-        
+
         <button
           type="button"
           (click)="addExperience()"
-          class="mt-4 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-lg transition">
+          class="mt-4 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-lg transition"
+        >
           + Add Experience
         </button>
       </div>
@@ -148,24 +167,30 @@
       <button
         type="button"
         (click)="toggleSection('educations')"
-        class="w-full px-6 py-4 bg-gray-50 hover:bg-gray-100 flex items-center justify-between font-semibold text-gray-900">
+        class="w-full px-6 py-4 bg-gray-50 hover:bg-gray-100 flex items-center justify-between font-semibold text-gray-900"
+      >
         <span>Education</span>
         <span [class.rotate-180]="expandedSections.educations" class="transition-transform">▼</span>
       </button>
-      
+
       <div *ngIf="expandedSections.educations" class="p-6 border-t">
         <div formArrayName="educations">
-          <div *ngFor="let education of educations.controls; let i = index" [formGroupName]="i" class="mb-6 p-4 bg-gray-50 rounded-lg">
+          <div
+            *ngFor="let education of educations.controls; let i = index"
+            [formGroupName]="i"
+            class="mb-6 p-4 bg-gray-50 rounded-lg"
+          >
             <div class="flex justify-between items-center mb-4">
               <h4 class="font-semibold text-gray-900">Education {{ i + 1 }}</h4>
               <button
                 type="button"
                 (click)="removeEducation(i)"
-                class="text-red-600 hover:text-red-700 font-semibold">
+                class="text-red-600 hover:text-red-700 font-semibold"
+              >
                 Remove
               </button>
             </div>
-            
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <!-- Institution -->
               <div>
@@ -174,9 +199,10 @@
                   type="text"
                   formControlName="institution"
                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  placeholder="University Name">
+                  placeholder="University Name"
+                />
               </div>
-              
+
               <!-- Degree -->
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Degree</label>
@@ -184,9 +210,10 @@
                   type="text"
                   formControlName="degree"
                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  placeholder="Bachelor of Science">
+                  placeholder="Bachelor of Science"
+                />
               </div>
-              
+
               <!-- Field -->
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Field of Study</label>
@@ -194,9 +221,10 @@
                   type="text"
                   formControlName="field"
                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  placeholder="Computer Science">
+                  placeholder="Computer Science"
+                />
               </div>
-              
+
               <!-- Graduation Year -->
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Graduation Year</label>
@@ -204,16 +232,18 @@
                   type="text"
                   formControlName="graduationYear"
                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  placeholder="2023">
+                  placeholder="2023"
+                />
               </div>
             </div>
           </div>
         </div>
-        
+
         <button
           type="button"
           (click)="addEducation()"
-          class="mt-4 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-lg transition">
+          class="mt-4 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-lg transition"
+        >
           + Add Education
         </button>
       </div>
@@ -224,35 +254,46 @@
       <button
         type="button"
         (click)="toggleSection('certifications')"
-        class="w-full px-6 py-4 bg-gray-50 hover:bg-gray-100 flex items-center justify-between font-semibold text-gray-900">
+        class="w-full px-6 py-4 bg-gray-50 hover:bg-gray-100 flex items-center justify-between font-semibold text-gray-900"
+      >
         <span>Certifications</span>
-        <span [class.rotate-180]="expandedSections.certifications" class="transition-transform">▼</span>
+        <span [class.rotate-180]="expandedSections.certifications" class="transition-transform"
+          >▼</span
+        >
       </button>
-      
+
       <div *ngIf="expandedSections.certifications" class="p-6 border-t">
         <div formArrayName="certifications">
-          <div *ngFor="let certification of certifications.controls; let i = index" [formGroupName]="i" class="mb-6 p-4 bg-gray-50 rounded-lg">
+          <div
+            *ngFor="let certification of certifications.controls; let i = index"
+            [formGroupName]="i"
+            class="mb-6 p-4 bg-gray-50 rounded-lg"
+          >
             <div class="flex justify-between items-center mb-4">
               <h4 class="font-semibold text-gray-900">Certification {{ i + 1 }}</h4>
               <button
                 type="button"
                 (click)="removeCertification(i)"
-                class="text-red-600 hover:text-red-700 font-semibold">
+                class="text-red-600 hover:text-red-700 font-semibold"
+              >
                 Remove
               </button>
             </div>
-            
+
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <!-- Name -->
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">Certification Name</label>
+                <label class="block text-sm font-medium text-gray-700 mb-2"
+                  >Certification Name</label
+                >
                 <input
                   type="text"
                   formControlName="name"
                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  placeholder="e.g., AWS Solution Architect">
+                  placeholder="e.g., AWS Solution Architect"
+                />
               </div>
-              
+
               <!-- Issuer -->
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-2">Issuer</label>
@@ -260,9 +301,10 @@
                   type="text"
                   formControlName="issuer"
                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  placeholder="e.g., Amazon Web Services">
+                  placeholder="e.g., Amazon Web Services"
+                />
               </div>
-              
+
               <!-- Date -->
               <div class="md:col-span-2">
                 <label class="block text-sm font-medium text-gray-700 mb-2">Date Obtained</label>
@@ -270,16 +312,18 @@
                   type="text"
                   formControlName="date"
                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  placeholder="e.g., October 2023">
+                  placeholder="e.g., October 2023"
+                />
               </div>
             </div>
           </div>
         </div>
-        
+
         <button
           type="button"
           (click)="addCertification()"
-          class="mt-4 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-lg transition">
+          class="mt-4 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-lg transition"
+        >
           + Add Certification
         </button>
       </div>
@@ -290,11 +334,12 @@
       <button
         type="button"
         (click)="toggleSection('skills')"
-        class="w-full px-6 py-4 bg-gray-50 hover:bg-gray-100 flex items-center justify-between font-semibold text-gray-900">
+        class="w-full px-6 py-4 bg-gray-50 hover:bg-gray-100 flex items-center justify-between font-semibold text-gray-900"
+      >
         <span>Skills</span>
         <span [class.rotate-180]="expandedSections.skills" class="transition-transform">▼</span>
       </button>
-      
+
       <div *ngIf="expandedSections.skills" class="p-6 border-t">
         <div formArrayName="skills">
           <div *ngFor="let skill of skills.controls; let i = index" class="mb-4 flex gap-3">
@@ -302,32 +347,293 @@
               type="text"
               [formControl]="$any(skill)"
               class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
-              placeholder="e.g., JavaScript">
+              placeholder="e.g., JavaScript"
+            />
             <button
               type="button"
               (click)="removeSkill(i)"
-              class="px-3 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition">
+              class="px-3 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition"
+            >
               Remove
             </button>
           </div>
         </div>
-        
+
         <button
           type="button"
           (click)="addSkill()"
-          class="mt-4 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-lg transition">
+          class="mt-4 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-lg transition"
+        >
           + Add Skill
         </button>
+      </div>
+    </div>
+
+    <!-- AI Actions Section -->
+    <div class="mb-6 border rounded-lg">
+      <button
+        type="button"
+        class="w-full px-6 py-4 bg-blue-50 hover:bg-blue-100 flex items-center justify-between font-semibold text-blue-900"
+      >
+        <span>🤖 AI Assistant</span>
+      </button>
+
+      <div class="p-6 border-t">
+        <!-- Job Description Input -->
+        <div class="mb-6">
+          <label class="block text-sm font-medium text-gray-700 mb-2"
+            >Job Description (for tailoring & interview prep)</label
+          >
+          <textarea
+            [(ngModel)]="jobDescriptionInput"
+            [ngModelOptions]="{ standalone: true }"
+            rows="4"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder="Paste the job description here to tailor your CV and generate Interview questions..."
+          ></textarea>
+        </div>
+
+        <!-- Loading State -->
+        <div *ngIf="aiLoading" class="mb-4 p-4 bg-blue-50 rounded-lg">
+          <p class="text-blue-900">⏳ Processing with AI...</p>
+        </div>
+
+        <!-- Success Message -->
+        <div
+          *ngIf="aiMessage && !aiLoading"
+          class="mb-4 p-4 bg-green-50 rounded-lg border border-green-200"
+        >
+          <p class="text-green-900 whitespace-pre-wrap">{{ aiMessage }}</p>
+        </div>
+
+        <!-- Error Message -->
+        <div *ngIf="aiError" class="mb-4 p-4 bg-red-50 rounded-lg border border-red-200">
+          <p class="text-red-900">❌ {{ aiError }}</p>
+        </div>
+
+        <!-- AI Action Buttons Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <button
+            type="button"
+            (click)="buildCV()"
+            [disabled]="aiLoading"
+            class="px-4 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-semibold rounded-lg transition flex items-center justify-center gap-2"
+          >
+            <span>🔨</span> Build CV
+          </button>
+
+          <button
+            type="button"
+            (click)="tailorCV()"
+            [disabled]="aiLoading"
+            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold rounded-lg transition flex items-center justify-center gap-2"
+          >
+            <span>🎯</span> Tailor for Job
+          </button>
+
+          <button
+            type="button"
+            (click)="generateQuestions()"
+            [disabled]="aiLoading"
+            class="px-4 py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white font-semibold rounded-lg transition flex items-center justify-center gap-2"
+          >
+            <span>❓</span> Interview Prep
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- CV Preview Section -->
+    <div *ngIf="showCVPreview && displayedCV" class="bg-white rounded-lg shadow-md p-8 mt-8">
+      <h2 class="text-3xl font-bold text-gray-900 mb-2">{{ displayedCV.personalInfo.name }}</h2>
+
+      <!-- Contact Info -->
+      <div class="text-sm text-gray-600 mb-6 flex flex-wrap gap-4">
+        <span *ngIf="displayedCV.personalInfo.email">📧 {{ displayedCV.personalInfo.email }}</span>
+        <span *ngIf="displayedCV.personalInfo.phone">📱 {{ displayedCV.personalInfo.phone }}</span>
+        <span *ngIf="displayedCV.personalInfo.location"
+          >📍 {{ displayedCV.personalInfo.location }}</span
+        >
+      </div>
+
+      <!-- Professional Summary -->
+      <div *ngIf="displayedCV.summary" class="mb-8">
+        <h3 class="text-xl font-bold text-gray-900 mb-3">Professional Summary</h3>
+        <p class="text-gray-700 leading-relaxed">{{ displayedCV.summary }}</p>
+      </div>
+
+      <!-- Work Experience -->
+      <div *ngIf="displayedCV.experience && displayedCV.experience.length > 0" class="mb-8">
+        <h3 class="text-xl font-bold text-gray-900 mb-4">Work Experience</h3>
+        <div *ngFor="let exp of displayedCV.experience" class="mb-6">
+          <div class="flex justify-between items-start">
+            <div>
+              <h4 class="font-bold text-gray-900">{{ exp.position }}</h4>
+              <p class="text-gray-600">{{ exp.company }}</p>
+            </div>
+            <span class="text-sm text-gray-500">{{ exp.duration }}</span>
+          </div>
+          <p class="text-gray-700 mt-2">{{ exp.description }}</p>
+        </div>
+      </div>
+
+      <!-- Education -->
+      <div *ngIf="displayedCV.education && displayedCV.education.length > 0" class="mb-8">
+        <h3 class="text-xl font-bold text-gray-900 mb-4">Education</h3>
+        <div *ngFor="let edu of displayedCV.education" class="mb-4">
+          <h4 class="font-bold text-gray-900">{{ edu.degree }} in {{ edu.field }}</h4>
+          <p class="text-gray-600">{{ edu.institution }}</p>
+          <p class="text-sm text-gray-500">{{ edu.graduationYear }}</p>
+        </div>
+      </div>
+
+      <!-- Skills -->
+      <div *ngIf="displayedCV.skills && displayedCV.skills.length > 0" class="mb-8">
+        <h3 class="text-xl font-bold text-gray-900 mb-4">Skills</h3>
+        <div class="flex flex-wrap gap-2">
+          <span
+            *ngFor="let skill of displayedCV.skills"
+            class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium"
+          >
+            {{ skill }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Certifications -->
+      <div *ngIf="displayedCV.certifications && displayedCV.certifications.length > 0" class="mb-8">
+        <h3 class="text-xl font-bold text-gray-900 mb-4">Certifications</h3>
+        <div *ngFor="let cert of displayedCV.certifications" class="mb-3">
+          <h4 class="font-bold text-gray-900">{{ cert.name }}</h4>
+          <p class="text-gray-600">{{ cert.issuer }} - {{ cert.date }}</p>
+        </div>
+      </div>
+
+      <!-- Download Options -->
+      <div class="border-t pt-8 mt-8">
+        <h3 class="text-xl font-bold text-gray-900 mb-4">Download CV</h3>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <button
+            type="button"
+            (click)="downloadCVAsDOCX()"
+            class="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition flex items-center justify-center gap-2"
+          >
+            <span>📄</span> Download as DOCX
+          </button>
+          <button
+            type="button"
+            (click)="downloadCVAsPDF()"
+            class="px-6 py-3 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-lg transition flex items-center justify-center gap-2"
+          >
+            <span>📕</span> Download as PDF
+          </button>
+          <button
+            type="button"
+            (click)="downloadCVAsJSON()"
+            class="px-6 py-3 bg-gray-600 hover:bg-gray-700 text-white font-semibold rounded-lg transition flex items-center justify-center gap-2"
+          >
+            <span>📋</span> Download as JSON
+          </button>
+        </div>
       </div>
     </div>
 
     <!-- Submit Button -->
     <div class="mt-8 flex gap-4">
       <button
-        type="submit"
-        class="px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-lg transition">
-        Save CV
+        type="button"
+        (click)="saveCVToDatabase()"
+        class="px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-lg transition"
+      >
+        {{ editingCVId ? 'Update CV' : 'Save to Database' }}
+      </button>
+      <button
+        *ngIf="editingCVId"
+        type="button"
+        (click)="cancelEdit()"
+        class="px-6 py-3 bg-gray-400 hover:bg-gray-500 text-white font-semibold rounded-lg transition"
+      >
+        Cancel Edit
       </button>
     </div>
   </form>
+
+  <!-- Saved CVs Section -->
+  <div *ngIf="savedCVs.length > 0" class="bg-white rounded-lg shadow-md p-8 mt-12">
+    <h2 class="text-2xl font-bold text-gray-900 mb-6">Saved CVs</h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div *ngFor="let cv of savedCVs" class="border rounded-lg p-6 hover:shadow-lg transition">
+        <!-- CV Card Header -->
+        <h3 class="text-lg font-bold text-gray-900 mb-2">{{ cv.fullName }}</h3>
+
+        <!-- CV Card Info -->
+        <div class="text-sm text-gray-600 mb-4 space-y-1">
+          <p *ngIf="cv.email">📧 {{ cv.email }}</p>
+          <p *ngIf="cv.phone">📱 {{ cv.phone }}</p>
+          <p *ngIf="cv.location">📍 {{ cv.location }}</p>
+        </div>
+
+        <!-- CV Card Summary -->
+        <p *ngIf="cv.summary" class="text-sm text-gray-700 mb-4 line-clamp-2">
+          {{ cv.summary }}
+        </p>
+
+        <!-- Action Buttons -->
+        <div class="flex flex-col gap-2">
+          <button
+            type="button"
+            (click)="editCV(cv)"
+            class="w-full px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-sm rounded-lg transition"
+          >
+            ✏️ Edit
+          </button>
+
+          <!-- Download Dropdown -->
+          <div class="relative group">
+            <button
+              type="button"
+              class="w-full px-3 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold text-sm rounded-lg transition"
+            >
+              📥 Download
+            </button>
+
+            <div
+              class="absolute hidden group-hover:block right-0 mt-0 w-40 bg-white border rounded-lg shadow-lg z-10"
+            >
+              <button
+                type="button"
+                (click)="downloadSavedCV(cv, 'json')"
+                class="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
+              >
+                JSON
+              </button>
+              <button
+                type="button"
+                (click)="downloadSavedCV(cv, 'docx')"
+                class="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
+              >
+                DOCX
+              </button>
+              <button
+                type="button"
+                (click)="downloadSavedCV(cv, 'pdf')"
+                class="block w-full text-left px-4 py-2 hover:bg-gray-100 text-sm"
+              >
+                PDF
+              </button>
+            </div>
+          </div>
+
+          <button
+            type="button"
+            (click)="deleteCV(cv.id)"
+            class="w-full px-3 py-2 bg-red-600 hover:bg-red-700 text-white font-semibold text-sm rounded-lg transition"
+          >
+            🗑️ Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

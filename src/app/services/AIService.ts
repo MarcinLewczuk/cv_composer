@@ -2,89 +2,154 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-export interface CVGenerateRequest {
-  userInput: string;
+// Request/Response types matching backend
+export interface ParseCVRequest {
+  cvText: string;
 }
 
-export interface CVGenerateResponse {
-  cv: string;
+export interface ParsedCV {
+  personalInfo: {
+    name: string;
+    email: string;
+    phone?: string;
+    location?: string;
+  };
+  summary?: string;
+  experience: Array<{
+    company: string;
+    position: string;
+    duration?: string;
+    description?: string;
+    achievements?: string[];
+  }>;
+  education: Array<{
+    institution: string;
+    degree: string;
+    field: string;
+    graduationYear?: string;
+  }>;
+  skills: string[];
+  certifications?: Array<{
+    name: string;
+    issuer: string;
+    date: string;
+  }>;
 }
 
-export interface CVReviewRequest {
-  cvContent: string;
+export interface ParseCVResponse {
+  success: boolean;
+  message: string;
+  data: {
+    parsedCV: ParsedCV;
+    cacheKey: string;
+  };
 }
 
-export interface CVReviewResponse {
-  review: string;
+export interface ReviewResult {
+  isValid: boolean;
+  structureIssues: string[];
+  styleIssues: string[];
+  recommendations: string[];
 }
 
-export interface CVTailorRequest {
-  cvContent: string;
-  jobDescription: string;
+export interface ReviewCVResponse {
+  success: boolean;
+  message: string;
+  data: ReviewResult;
 }
 
-export interface CVTailorResponse {
-  tailoredCV: string;
+export interface ImprovedCV extends ParsedCV {}
+
+export interface ImproveCVResponse {
+  success: boolean;
+  message: string;
+  data: ImprovedCV;
 }
 
-export interface InterviewQuestionsRequest {
-  cvContent: string;
-  jobDescription?: string;
+export interface TailorCVRequest {
+  cvJson: ParsedCV;
+  jobBrief: string;
 }
 
-export interface InterviewQuestionsResponse {
-  questions: string[];
+export interface TailorCVResponse {
+  success: boolean;
+  message: string;
+  data: ImprovedCV;
+}
+
+export interface GenerateQuestionsRequest {
+  cvJson: ParsedCV;
+  jobBrief: string;
+}
+
+export interface GenerateQuestionsResponse {
+  success: boolean;
+  message: string;
+  data: string[];
+}
+
+export interface ApiResponse<T> {
+  success: boolean;
+  message: string;
+  data?: T;
+  error?: string;
 }
 
 @Injectable({
   providedIn: 'root',
 })
 export class AIService {
-  private apiUrl = 'http://localhost:3000/api';
+  private apiUrl = 'http://localhost:3000/api/cv';
 
   constructor(private http: HttpClient) {}
 
   /**
-   * Generate a professional CV from user input using AI
+   * Parse CV text to structured JSON
    */
-  generateCV(userInput: string): Observable<CVGenerateResponse> {
-    return this.http.post<CVGenerateResponse>(`${this.apiUrl}/cv/generate`, {
-      userInput,
+  parseCV(cvText: string): Observable<ParseCVResponse> {
+    return this.http.post<ParseCVResponse>(`${this.apiUrl}/parse`, {
+      cvText,
     });
   }
 
   /**
    * Review a CV and get detailed feedback
    */
-  reviewCV(cvContent: string): Observable<CVReviewResponse> {
-    return this.http.post<CVReviewResponse>(`${this.apiUrl}/cv/review`, {
-      cvContent,
+  reviewCV(cvJson: ParsedCV): Observable<ReviewCVResponse> {
+    return this.http.post<ReviewCVResponse>(`${this.apiUrl}/review`, {
+      cvJson,
     });
   }
 
   /**
-   * Tailor a CV for a specific job description
+   * Improve CV language and formatting
    */
-  tailorCVForJob(cvContent: string, jobDescription: string): Observable<CVTailorResponse> {
-    return this.http.post<CVTailorResponse>(`${this.apiUrl}/cv/tailor`, {
-      cvContent,
-      jobDescription,
+  improveCV(cvJson: ParsedCV): Observable<ImproveCVResponse> {
+    return this.http.post<ImproveCVResponse>(`${this.apiUrl}/improve`, {
+      cvJson,
     });
   }
 
   /**
-   * Generate interview questions based on CV and optionally job description
+   * Tailor CV for a specific job description
+   */
+  tailorCVForJob(cvJson: ParsedCV, jobBrief: string): Observable<TailorCVResponse> {
+    return this.http.post<TailorCVResponse>(`${this.apiUrl}/tailor`, {
+      cvJson,
+      jobBrief,
+    });
+  }
+
+  /**
+   * Generate interview questions based on CV and job description
    */
   generateInterviewQuestions(
-    cvContent: string,
-    jobDescription?: string,
-  ): Observable<InterviewQuestionsResponse> {
-    return this.http.post<InterviewQuestionsResponse>(
-      `${this.apiUrl}/interview/generate-questions`,
-      {
-        cvContent,
-        jobDescription,
-      },
-    );
+    cvJson: ParsedCV,
+    jobBrief: string,
+  ): Observable<GenerateQuestionsResponse> {
+    return this.http.post<GenerateQuestionsResponse>(`${this.apiUrl}/generate-questions`, {
+      cvJson,
+      jobBrief,
+    });
   }
 }

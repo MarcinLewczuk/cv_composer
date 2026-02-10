@@ -23,6 +23,7 @@ import {
   getUserCVsHandler,
   generateQuestionsHandler,
   deleteCVHandler,
+  updateCVHandler,
 } from './controllers/cvController';
 import {
   generateTestHandler,
@@ -53,15 +54,23 @@ console.log('Static files path configured:', uploadsDir);
 
 // Configure multer for file uploads
 const storage = multer.diskStorage({
-  destination: (req: Request, file: Express.Multer.File, cb: (error: Error | null, destination: string) => void) => {
+  destination: (
+    req: Request,
+    file: Express.Multer.File,
+    cb: (error: Error | null, destination: string) => void,
+  ) => {
     cb(null, uploadsDir);
   },
-  filename: (req: Request, file: Express.Multer.File, cb: (error: Error | null, filename: string) => void) => {
+  filename: (
+    req: Request,
+    file: Express.Multer.File,
+    cb: (error: Error | null, filename: string) => void,
+  ) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
     const ext = path.extname(file.originalname);
     const name = path.basename(file.originalname, ext);
     cb(null, name + '-' + uniqueSuffix + ext);
-  }
+  },
 });
 
 const upload = multer({
@@ -69,13 +78,18 @@ const upload = multer({
   limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
   fileFilter: (req: Request, file: Express.Multer.File, cb: FileFilterCallback) => {
     // Only allow PDF and common document formats
-    const allowedMimes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'text/plain'];
+    const allowedMimes = [
+      'application/pdf',
+      'application/msword',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      'text/plain',
+    ];
     if (allowedMimes.includes(file.mimetype)) {
       cb(null, true);
     } else {
       cb(new Error('Only PDF, DOC, DOCX, and TXT files are allowed'));
     }
-  }
+  },
 });
 
 /**
@@ -87,7 +101,7 @@ const db = mysql.createConnection({
   port: Number(process.env['DB_PORT']),
   user: process.env['DB_USER'],
   password: process.env['DB_PASS'],
-  database: process.env['DB_NAME']
+  database: process.env['DB_NAME'],
 });
 
 // Export database connection for use in queries.ts
@@ -176,14 +190,14 @@ server.post('/users', async (req: Request, res: Response) => {
           console.error('User creation failed:', error);
           return res.status(500).json({ error: 'internal error' });
         }
-        
+
         // Generate JWT token
         const token = generateToken(results.insertId, email);
         return res.status(201).json({
           token,
-          user: { id: results.insertId, email }
+          user: { id: results.insertId, email },
         });
-      }
+      },
     );
   } catch (e) {
     console.error('User creation failed:', e);
@@ -208,7 +222,7 @@ server.post('/users/login', loginUser('users'));
 server.get('/users/me', verifyToken, (req: Request, res: Response) => {
   res.json({
     id: req.user?.id,
-    email: req.user?.email
+    email: req.user?.email,
   });
 });
 
@@ -234,27 +248,50 @@ server.post('/upload', upload.single('file'), async (req: Request, res: Response
     const { originalname, filename, size, mimetype } = req.file;
     const filePath = `/uploads/${filename}`;
 
-    // Insert file metadata into database
-    const query = 'INSERT INTO file_uploads (fileName, originalFileName, fileSize, mimeType, filePath, createdBy) VALUES (?, ?, ?, ?, ?, ?)';
-    db.query(query, [filename, originalname, size, mimetype, filePath, userId], (error: mysql.QueryError | null, results: any) => {
-      if (error) {
-        console.error('Error saving file metadata:', error);
-        // Clean up uploaded file if database insert fails
-        fs.unlink(path.join(uploadsDir, filename), (unlinkError: NodeJS.ErrnoException | null) => {
-          if (unlinkError) console.error('Error deleting file:', unlinkError);
-        });
-        return res.status(500).json({ error: 'Failed to save file metadata' });
-      }
+    console.log(
+      'Upload request - User:',
+      userId,
+      'File:',
+      originalname,
+      'Size:',
+      size,
+      'Type:',
+      mimetype,
+    );
 
-      res.json({
-        success: true,
-        fileId: results.insertId,
-        fileName: originalname,
-        filePath: filePath,
-        fileSize: size,
-        message: 'File uploaded successfully'
-      });
-    });
+    // Insert file metadata into database
+    const query =
+      'INSERT INTO file_uploads (fileName, originalFileName, fileSize, mimeType, filePath, createdBy) VALUES (?, ?, ?, ?, ?, ?)';
+    db.query(
+      query,
+      [filename, originalname, size, mimetype, filePath, userId],
+      (error: mysql.QueryError | null, results: any) => {
+        if (error) {
+          console.error('Error saving file metadata to database:', error.message);
+          console.error('Query:', query);
+          console.error('Values:', [filename, originalname, size, mimetype, filePath, userId]);
+          console.error('Full error:', error);
+          // Clean up uploaded file if database insert fails
+          fs.unlink(
+            path.join(uploadsDir, filename),
+            (unlinkError: NodeJS.ErrnoException | null) => {
+              if (unlinkError) console.error('Error deleting file:', unlinkError);
+            },
+          );
+          return res.status(500).json({ error: 'Failed to save file metadata: ' + error.message });
+        }
+
+        console.log('File metadata saved successfully - ID:', results.insertId);
+        res.json({
+          success: true,
+          fileId: results.insertId,
+          fileName: originalname,
+          filePath: filePath,
+          fileSize: size,
+          message: 'File uploaded successfully',
+        });
+      },
+    );
   } catch (error) {
     console.error('Upload error:', error);
     res.status(500).json({ error: 'File upload failed' });
@@ -268,14 +305,15 @@ server.post('/upload', upload.single('file'), async (req: Request, res: Response
 server.get('/uploads/:userId', async (req: Request, res: Response) => {
   try {
     const userId = req.params.userId;
-    const query = 'SELECT id, fileName, originalFileName, fileSize, mimeType, filePath, createdAt FROM file_uploads WHERE createdBy = ? ORDER BY createdAt DESC';
-    
+    const query =
+      'SELECT id, fileName, originalFileName, fileSize, mimeType, filePath, createdAt FROM file_uploads WHERE createdBy = ? ORDER BY createdAt DESC';
+
     db.query(query, [userId], (error: mysql.QueryError | null, results: any) => {
       if (error) {
         console.error('Error retrieving files:', error);
         return res.status(500).json({ error: 'Failed to retrieve files' });
       }
-      
+
       res.json(results || []);
     });
   } catch (error) {
@@ -287,24 +325,24 @@ server.get('/uploads/:userId', async (req: Request, res: Response) => {
 /**
  * POST /parse-cv
  * Extracts text content from an uploaded CV file
- * Supports: TXT, DOCX
+ * Supports: TXT, DOCX, PDF
  */
 server.post('/parse-cv', async (req: Request, res: Response) => {
   try {
     const { filePath } = req.body;
-    
+
     if (!filePath) {
       return res.status(400).json({ error: 'filePath is required' });
     }
 
     // Clean the file path (remove leading slash)
     const cleanPath = filePath.startsWith('/') ? filePath.substring(1) : filePath;
-    
+
     // Construct full file path - files are stored in public/uploads/
     const fullPath = path.join(process.cwd(), 'public', cleanPath);
-    
+
     console.log('Parsing CV - File path:', filePath, 'Full path:', fullPath);
-    
+
     // Check if file exists
     if (!fs.existsSync(fullPath)) {
       console.error('File not found:', fullPath);
@@ -313,7 +351,7 @@ server.post('/parse-cv', async (req: Request, res: Response) => {
 
     let extractedText = '';
     const fileExtension = path.extname(fullPath).toLowerCase();
-    
+
     console.log('File extension:', fileExtension);
 
     try {
@@ -327,7 +365,7 @@ server.post('/parse-cv', async (req: Request, res: Response) => {
         const fileBuffer = fs.readFileSync(fullPath);
         const zip = new JSZip();
         const zipData = await zip.loadAsync(fileBuffer);
-        
+
         const docXmlFile = zipData.file('word/document.xml');
         if (docXmlFile) {
           const docXml = await docXmlFile.async('string');
@@ -339,14 +377,60 @@ server.post('/parse-cv', async (req: Request, res: Response) => {
           }
         }
         console.log('Extracted DOCX text length:', extractedText.length);
+      } else if (fileExtension === '.pdf') {
+        // For PDF files, use pdf-parse
+        try {
+          const pdfParseLib = require('pdf-parse');
+          console.log('pdf-parse module type:', typeof pdfParseLib);
+          console.log('pdf-parse module keys:', Object.keys(pdfParseLib).slice(0, 10));
+
+          // Handle different export patterns
+          let pdfParseFn: any = null;
+
+          if (typeof pdfParseLib === 'function') {
+            // Direct function export
+            pdfParseFn = pdfParseLib;
+          } else if (pdfParseLib.default && typeof pdfParseLib.default === 'function') {
+            // Default export
+            pdfParseFn = pdfParseLib.default;
+          } else if (typeof (pdfParseLib as any)?.parse === 'function') {
+            // Named export
+            pdfParseFn = (pdfParseLib as any).parse;
+          } else {
+            // Last resort: find first function
+            for (const key in pdfParseLib) {
+              if (typeof pdfParseLib[key] === 'function') {
+                pdfParseFn = pdfParseLib[key];
+                console.log('Using pdf-parse function from key:', key);
+                break;
+              }
+            }
+          }
+
+          if (typeof pdfParseFn !== 'function') {
+            throw new Error(
+              `pdf-parse module exports no function. Received: ${typeof pdfParseLib}. Keys: ${Object.keys(pdfParseLib).join(', ')}`,
+            );
+          }
+
+          const fileBuffer = fs.readFileSync(fullPath);
+          const pdfData = await pdfParseFn(fileBuffer);
+          extractedText = pdfData.text || '';
+          console.log('Extracted PDF text length:', extractedText.length);
+        } catch (pdfError) {
+          console.error('PDF parsing error:', pdfError);
+          throw new Error(`Failed to parse PDF: ${String(pdfError)}`);
+        }
       } else {
-        return res.status(400).json({ error: 'Unsupported file format. Supported formats: TXT, DOCX' });
+        return res
+          .status(400)
+          .json({ error: 'Unsupported file format. Supported formats: TXT, DOCX, PDF' });
       }
 
       res.json({
         success: true,
         extractedText: extractedText,
-        fileExtension: fileExtension
+        fileExtension: fileExtension,
       });
     } catch (parseError) {
       console.error('Error parsing file:', parseError);
@@ -390,25 +474,31 @@ server.post('/api/cv/tailor', tailorCVHandler);
  * POST /api/cv/save
  * Save CV to database (requires authentication)
  */
-server.post('/api/cv/save', saveCVHandler);
+server.post('/api/cv/save', verifyToken, saveCVHandler);
 
 /**
  * GET /api/cv
  * Get all CVs for current user (requires authentication)
  */
-server.get('/api/cv', getUserCVsHandler);
+server.get('/api/cv', verifyToken, getUserCVsHandler);
 
 /**
  * GET /api/cv/:id
  * Get specific CV by ID (requires authentication)
  */
-server.get('/api/cv/:id', getCVHandler);
+server.get('/api/cv/:id', verifyToken, getCVHandler);
 
 /**
  * DELETE /api/cv/:id
  * Delete CV by ID (requires authentication)
  */
-server.delete('/api/cv/:id', deleteCVHandler);
+server.delete('/api/cv/:id', verifyToken, deleteCVHandler);
+
+/**
+ * PUT /api/cv/:id
+ * Update CV by ID (requires authentication)
+ */
+server.put('/api/cv/:id', verifyToken, updateCVHandler);
 
 /**
  * POST /api/cv/generate-questions
@@ -501,4 +591,3 @@ server.get('/api/tests/test-api', async (req: Request, res: Response) => {
     });
   }
 });
-
