@@ -114,3 +114,52 @@ CREATE TABLE IF NOT EXISTS `file_uploads` (
   FOREIGN KEY (`createdBy`) REFERENCES `users`(`id`) ON DELETE CASCADE,
   KEY `idx_createdBy_createdAt` (`createdBy`, `createdAt`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Mock Tests table
+CREATE TABLE IF NOT EXISTS `mock_tests` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `title` varchar(255) NOT NULL,
+  `description` text,
+  `difficulty` enum('easy', 'medium', 'hard') NOT NULL DEFAULT 'medium',
+  `duration` int NOT NULL COMMENT 'Duration in minutes',
+  `topic` varchar(255),
+  `createdBy` int NOT NULL,
+  `createdAt` timestamp DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`createdBy`) REFERENCES `users`(`id`) ON DELETE CASCADE,
+  KEY `idx_createdBy` (`createdBy`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Test Questions table
+CREATE TABLE IF NOT EXISTS `test_questions` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `testId` int NOT NULL,
+  `question` text NOT NULL,
+  `optionA` text NOT NULL,
+  `optionB` text NOT NULL,
+  `optionC` text NOT NULL,
+  `optionD` text NOT NULL,
+  `correctAnswer` enum('A', 'B', 'C', 'D') NOT NULL,
+  `explanation` text,
+  `order` int DEFAULT 1,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`testId`) REFERENCES `mock_tests`(`id`) ON DELETE CASCADE,
+  KEY `idx_testId` (`testId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Test Results table
+CREATE TABLE IF NOT EXISTS `test_results` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `testId` int NOT NULL,
+  `userId` int NOT NULL,
+  `score` int NOT NULL,
+  `totalQuestions` int NOT NULL,
+  `timeTaken` int COMMENT 'Time taken in seconds',
+  `answers` json COMMENT 'User answers stored as JSON',
+  `completedAt` timestamp DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`testId`) REFERENCES `mock_tests`(`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`userId`) REFERENCES `users`(`id`) ON DELETE CASCADE,
+  KEY `idx_userId_completedAt` (`userId`, `completedAt`),
+  KEY `idx_testId` (`testId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
