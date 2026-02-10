@@ -2,25 +2,29 @@
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
     
     <!-- Loading Overlay -->
-    <div *ngIf="isLoading" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white rounded-lg p-8">
-        <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-orange-600 mx-auto"></div>
-        <p class="mt-4 text-gray-700 font-semibold">Loading...</p>
+    @if (isLoading) {
+      <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-8">
+          <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-orange-600 mx-auto"></div>
+          <p class="mt-4 text-gray-700 font-semibold">Loading...</p>
+        </div>
       </div>
-    </div>
+    }
 
     <!-- Error Message -->
-    <div *ngIf="errorMessage" class="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
-      <span class="block sm:inline">{{ errorMessage }}</span>
-      <button (click)="errorMessage = ''" class="absolute top-0 bottom-0 right-0 px-4 py-3">
-        <svg class="fill-current h-6 w-6 text-red-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-          <path d="M14.348 14.849a1 1 0 01-1.414 0L10 11.414l-2.93 2.435a1 1 0 11-1.366-1.366l2.93-2.435-2.93-2.93a1 1 0 111.366-1.366l2.93 2.93 2.934-2.93a1 1 0 111.414 1.414l-2.934 2.93 2.934 2.934a1 1 0 010 1.415z"/>
-        </svg>
-      </button>
-    </div>
+    @if (errorMessage) {
+      <div class="mb-6 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+        <span class="block sm:inline">{{ errorMessage }}</span>
+        <button (click)="errorMessage = ''" class="absolute top-0 bottom-0 right-0 px-4 py-3">
+          <svg class="fill-current h-6 w-6 text-red-500" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+            <path d="M14.348 14.849a1 1 0 01-1.414 0L10 11.414l-2.93 2.435a1 1 0 11-1.366-1.366l2.93-2.435-2.93-2.93a1 1 0 111.366-1.366l2.93 2.93 2.934-2.93a1 1 0 111.414 1.414l-2.934 2.93 2.934 2.934a1 1 0 010 1.415z"/>
+          </svg>
+        </button>
+      </div>
+    }
 
     <!-- Session List View -->
-    <div *ngIf="view === 'list'">
+    @if (view === 'list') {
       <div class="flex items-center justify-between mb-8">
         <div>
           <h1 class="text-4xl font-bold text-gray-900 mb-2">Interview Practice</h1>
@@ -36,22 +40,25 @@
         </button>
       </div>
 
-      <div *ngIf="!isLoading && sessions.length === 0" class="text-center py-16">
-        <svg class="w-24 h-24 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
-        </svg>
-        <p class="text-gray-600 text-lg mb-4">No interview sessions yet</p>
-        <p class="text-gray-500 mb-6">Generate your first session to start practicing!</p>
-        <button 
-          (click)="showGenerateForm()"
-          class="px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-lg transition">
-          Generate First Session
-        </button>
-      </div>
+      @if (!isLoading && sessions.length === 0) {
+        <div class="text-center py-16">
+          <svg class="w-24 h-24 mx-auto text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"></path>
+          </svg>
+          <p class="text-gray-600 text-lg mb-4">No interview sessions yet</p>
+          <p class="text-gray-500 mb-6">Generate your first session to start practicing!</p>
+          <button 
+            (click)="showGenerateForm()"
+            class="px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-lg transition">
+            Generate First Session
+          </button>
+        </div>
+      }
 
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6" *ngIf="!isLoading && sessions.length > 0">
-        <div *ngFor="let session of sessions" 
-             class="bg-white rounded-lg shadow-md hover:shadow-xl transition p-6">
+      @if (!isLoading && sessions.length > 0) {
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          @for (session of sessions; track session.id) {
+            <div class="bg-white rounded-lg shadow-md hover:shadow-xl transition p-6">
           <div class="flex justify-between items-start mb-4">
             <div class="flex-1">
               <h3 class="text-xl font-bold text-gray-900 mb-1">{{ session.jobRole }}</h3>
@@ -75,29 +82,33 @@
             </div>
           </div>
 
-          <div class="flex gap-2">
-            <button 
-              (click)="startSession(session.id)"
-              class="flex-1 bg-orange-600 hover:bg-orange-700 text-white font-semibold px-4 py-2 rounded-lg transition">
-              {{ session.answeredCount && session.answeredCount > 0 ? 'Continue' : 'Start' }} Practice
-            </button>
-            <button 
-              *ngIf="session.answeredCount && session.answeredCount > 0"
-              (click)="reviewSession(session.id)"
-              class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-lg transition">
-              Review
-            </button>
-          </div>
+              <div class="flex gap-2">
+                <button 
+                  (click)="startSession(session.id)"
+                  class="flex-1 bg-orange-600 hover:bg-orange-700 text-white font-semibold px-4 py-2 rounded-lg transition">
+                  {{ session.answeredCount && session.answeredCount > 0 ? 'Continue' : 'Start' }} Practice
+                </button>
+                @if (session.answeredCount && session.answeredCount > 0) {
+                  <button 
+                    (click)="reviewSession(session.id)"
+                    class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-lg transition">
+                    Review
+                  </button>
+                }
+              </div>
 
-          <p class="text-xs text-gray-500 mt-3">
-            Created {{ session.createdAt | date: 'MMM d, y' }}
-          </p>
+              <p class="text-xs text-gray-500 mt-3">
+                Created {{ session.createdAt | date: 'MMM d, y' }}
+              </p>
+            </div>
+          }
         </div>
-      </div>
-    </div>
+      }
+    }
 
     <!-- Generate Session Form -->
-    <div *ngIf="view === 'generate'" class="max-w-2xl mx-auto">
+    @if (view === 'generate') {
+      <div class="max-w-2xl mx-auto">
       <button 
         (click)="backToList()"
         class="mb-6 flex items-center gap-2 text-gray-600 hover:text-gray-900 transition">
@@ -177,10 +188,11 @@
           </div>
         </form>
       </div>
-    </div>
+      </div>
+    }
 
     <!-- Practice View -->
-    <div *ngIf="view === 'practice' && currentSession">
+    @if (view === 'practice' && currentSession) {
       <div class="flex items-center justify-between mb-6">
         <button 
           (click)="backToList()"
@@ -218,7 +230,7 @@
         </div>
 
         <!-- Current Question -->
-        <div *ngIf="getCurrentQuestion()">
+        @if (getCurrentQuestion()) {
           <div class="mb-6">
             <div class="flex items-center gap-2 mb-4">
               <span [class]="'px-3 py-1 text-xs font-semibold rounded-full ' + interviewService.getQuestionTypeColor(getCurrentQuestion()!.questionType)">
@@ -267,26 +279,30 @@
           </div>
 
           <!-- Tips Section -->
-          <div *ngIf="showTips && currentQuestionDetails" class="mb-6 bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
-            <h4 class="font-bold text-blue-900 mb-2 flex items-center gap-2">
-              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
-              </svg>
-              Tips for Answering
-            </h4>
-            <p class="text-blue-800 whitespace-pre-wrap">{{ currentQuestionDetails.tips }}</p>
-          </div>
+          @if (showTips && currentQuestionDetails) {
+            <div class="mb-6 bg-blue-50 border-l-4 border-blue-500 p-4 rounded">
+              <h4 class="font-bold text-blue-900 mb-2 flex items-center gap-2">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                </svg>
+                Tips for Answering
+              </h4>
+              <p class="text-blue-800 whitespace-pre-wrap">{{ currentQuestionDetails.tips }}</p>
+            </div>
+          }
 
           <!-- Sample Answer Section -->
-          <div *ngIf="showSampleAnswer && currentQuestionDetails" class="mb-6 bg-green-50 border-l-4 border-green-500 p-4 rounded">
-            <h4 class="font-bold text-green-900 mb-2 flex items-center gap-2">
-              <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-              </svg>
-              Sample Answer
-            </h4>
-            <p class="text-green-800 whitespace-pre-wrap">{{ currentQuestionDetails.sampleAnswer }}</p>
-          </div>
+          @if (showSampleAnswer && currentQuestionDetails) {
+            <div class="mb-6 bg-green-50 border-l-4 border-green-500 p-4 rounded">
+              <h4 class="font-bold text-green-900 mb-2 flex items-center gap-2">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                </svg>
+                Sample Answer
+              </h4>
+              <p class="text-green-800 whitespace-pre-wrap">{{ currentQuestionDetails.sampleAnswer }}</p>
+            </div>
+          }
 
           <!-- Navigation -->
           <div class="flex justify-between mt-8 pt-6 border-t">
@@ -309,12 +325,12 @@
               </svg>
             </button>
           </div>
-        </div>
+        }
       </div>
-    </div>
+    }
 
     <!-- Review View -->
-    <div *ngIf="view === 'review'">
+    @if (view === 'review') {
       <div class="mb-6">
         <button 
           (click)="backToList()"
@@ -329,8 +345,8 @@
       </div>
 
       <div class="space-y-6">
-        <div *ngFor="let response of sessionResponses; let i = index" 
-             class="bg-white rounded-lg shadow-md p-6">
+        @for (response of sessionResponses; track $index; let i = $index) {
+          <div class="bg-white rounded-lg shadow-md p-6">
           <div class="mb-4">
             <div class="flex items-center justify-between mb-2">
               <span class="text-sm font-semibold text-gray-500">Question {{ i + 1 }}</span>
@@ -343,17 +359,19 @@
 
           <div class="space-y-4">
             <!-- Your Answer -->
-            <div *ngIf="response.userAnswer" class="border-l-4 border-orange-500 bg-orange-50 p-4 rounded">
-              <h4 class="font-semibold text-orange-900 mb-2">Your Answer:</h4>
-              <p class="text-gray-800 whitespace-pre-wrap">{{ response.userAnswer }}</p>
-              <p class="text-xs text-gray-500 mt-2">
-                Answered on {{ response.completedAt | date: 'MMM d, y, h:mm a' }}
-              </p>
-            </div>
-
-            <div *ngIf="!response.userAnswer" class="border-l-4 border-gray-300 bg-gray-50 p-4 rounded">
-              <p class="text-gray-500 italic">Not answered yet</p>
-            </div>
+            @if (response.userAnswer) {
+              <div class="border-l-4 border-orange-500 bg-orange-50 p-4 rounded">
+                <h4 class="font-semibold text-orange-900 mb-2">Your Answer:</h4>
+                <p class="text-gray-800 whitespace-pre-wrap">{{ response.userAnswer }}</p>
+                <p class="text-xs text-gray-500 mt-2">
+                  Answered on {{ response.completedAt | date: 'MMM d, y, h:mm a' }}
+                </p>
+              </div>
+            } @else {
+              <div class="border-l-4 border-gray-300 bg-gray-50 p-4 rounded">
+                <p class="text-gray-500 italic">Not answered yet</p>
+              </div>
+            }
 
             <!-- Sample Answer -->
             <div class="border-l-4 border-green-500 bg-green-50 p-4 rounded">
@@ -367,9 +385,10 @@
               <p class="text-gray-800 whitespace-pre-wrap">{{ response.tips }}</p>
             </div>
           </div>
-        </div>
+          </div>
+        }
       </div>
-    </div>
+    }
 
   </div>
 </main>
