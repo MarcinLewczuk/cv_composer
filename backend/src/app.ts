@@ -24,6 +24,14 @@ import {
   generateQuestionsHandler,
   deleteCVHandler,
 } from './controllers/cvController';
+import {
+  generateTestHandler,
+  getTestsHandler,
+  getTestByIdHandler,
+  submitTestHandler,
+  getTestResultsHandler,
+  getTestResultByIdHandler,
+} from './controllers/testController';
 import { verifyToken, generateToken } from './security/auth';
 
 // Initialize Express application with middleware.
@@ -407,3 +415,90 @@ server.delete('/api/cv/:id', deleteCVHandler);
  * Generate interview questions based on CV and job
  */
 server.post('/api/cv/generate-questions', generateQuestionsHandler);
+
+// ============================================
+// MOCK TEST ROUTES
+// ============================================
+
+/**
+ * POST /api/tests/generate
+ * Generate a new mock test using AI
+ * Requires authentication
+ */
+server.post('/api/tests/generate', verifyToken, generateTestHandler);
+
+/**
+ * GET /api/tests/results
+ * Get user's test results and statistics
+ * Requires authentication
+ * NOTE: This MUST come before /api/tests/:id to avoid route collision
+ */
+server.get('/api/tests/results', verifyToken, getTestResultsHandler);
+
+/**
+ * GET /api/tests/results/:id
+ * Get detailed result for a specific test submission
+ * Requires authentication
+ */
+server.get('/api/tests/results/:id', verifyToken, getTestResultByIdHandler);
+
+/**
+ * GET /api/tests
+ * Get all available tests
+ * Requires authentication
+ */
+server.get('/api/tests', verifyToken, getTestsHandler);
+
+/**
+ * GET /api/tests/:id
+ * Get specific test with questions (without answers)
+ * Requires authentication
+ */
+server.get('/api/tests/:id', verifyToken, getTestByIdHandler);
+
+/**
+ * POST /api/tests/:id/submit
+ * Submit test answers and get results
+ * Requires authentication
+ */
+server.post('/api/tests/:id/submit', verifyToken, submitTestHandler);
+
+/**
+ * GET /api/tests/test-api
+ * Test Anthropic API connection
+ * For debugging purposes - no auth required
+ */
+server.get('/api/tests/test-api', async (req: Request, res: Response) => {
+  try {
+    const Anthropic = require('@anthropic-ai/sdk');
+    const client = new Anthropic({
+      apiKey: process.env['ANTHROPIC_API_KEY'],
+    });
+
+    const message = await client.messages.create({
+      model: 'claude-3-haiku-20240307',
+      max_tokens: 100,
+      messages: [
+        {
+          role: 'user',
+          content: 'Say "API connection successful!" and nothing else.',
+        },
+      ],
+    });
+
+    res.json({
+      success: true,
+      message: 'API test successful',
+      response: message.content[0].text,
+      model: 'claude-3-haiku-20240307',
+    });
+  } catch (error: any) {
+    console.error('API test error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'API test failed',
+      error: error.message || String(error),
+    });
+  }
+});
+
