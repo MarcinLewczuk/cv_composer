@@ -30,6 +30,15 @@ export const generateInterviewHandler = async (req: Request, res: Response) => {
     // Generate questions using AI
     const generatedInterview = await generateInterviewQuestions(jobRole, experienceLevel, count);
 
+    // Validate generated interview
+    if (!generatedInterview || !generatedInterview.questions || !Array.isArray(generatedInterview.questions)) {
+      console.error('Invalid interview format:', generatedInterview);
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to generate valid interview questions',
+      });
+    }
+
     // Save session to database
     const insertSessionQuery = `
       INSERT INTO interview_sessions (jobRole, experienceLevel, questionCount, createdBy)

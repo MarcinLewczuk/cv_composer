@@ -97,7 +97,27 @@ Make questions realistic, relevant to actual ${jobRole} interviews at ${experien
     console.log(cleanedText.substring(0, 500));
     console.log('=== END CLEANED ===');
 
-    const generatedInterview = JSON.parse(cleanedText);
+    // More robust sanitization: only replace control characters within string values
+    // This regex handles escaped quotes properly
+    const sanitized = cleanedText.replace(/"((?:[^"\\]|\\.)*)"/g, (match, content) => {
+      // Replace actual control characters (not escaped ones) with spaces
+      const cleaned = content
+        .replace(/[\n\r\t\f\b]/g, ' ')
+        .replace(/\s+/g, ' '); // Collapse multiple spaces
+      return `"${cleaned}"`;
+    });
+
+    console.log('=== SANITIZED JSON (Interview) ===');
+    console.log(sanitized.substring(0, 500));
+    console.log('=== END SANITIZED ===');
+
+    const generatedInterview = JSON.parse(sanitized);
+    
+    console.log('=== PARSED RESULT ===');
+    console.log('Job Role:', generatedInterview.jobRole);
+    console.log('Questions Count:', generatedInterview.questions?.length);
+    console.log('=== END PARSED ===');
+
     return generatedInterview;
   } catch (error) {
     console.error('Interview Generation Error:', error);
