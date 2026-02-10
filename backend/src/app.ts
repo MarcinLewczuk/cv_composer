@@ -32,6 +32,14 @@ import {
   getTestResultsHandler,
   getTestResultByIdHandler,
 } from './controllers/testController';
+import {
+  generateInterviewHandler,
+  getInterviewSessionsHandler,
+  getInterviewSessionByIdHandler,
+  getQuestionDetailsHandler,
+  submitAnswerHandler,
+  getSessionResponsesHandler,
+} from './controllers/interviewController';
 import { verifyToken, generateToken } from './security/auth';
 
 // Initialize Express application with middleware.
@@ -501,4 +509,52 @@ server.get('/api/tests/test-api', async (req: Request, res: Response) => {
     });
   }
 });
+
+// ==========================================
+// Interview Practice Routes
+// ==========================================
+
+/**
+ * POST /api/interviews/generate
+ * Generate a new interview practice session with AI-generated questions
+ * Requires authentication
+ */
+server.post('/api/interviews/generate', verifyToken, generateInterviewHandler);
+
+/**
+ * GET /api/interviews/questions/:questionId
+ * Get question details including sample answer and tips
+ * Requires authentication
+ * NOTE: This MUST come before /api/interviews/:id to avoid route collision
+ */
+server.get('/api/interviews/questions/:questionId', verifyToken, getQuestionDetailsHandler);
+
+/**
+ * POST /api/interviews/submit-answer
+ * Submit an answer for a question
+ * Requires authentication
+ */
+server.post('/api/interviews/submit-answer', verifyToken, submitAnswerHandler);
+
+/**
+ * GET /api/interviews/:id/responses
+ * Get all responses for a session
+ * Requires authentication
+ * NOTE: This MUST come before /api/interviews/:id to avoid route collision
+ */
+server.get('/api/interviews/:id/responses', verifyToken, getSessionResponsesHandler);
+
+/**
+ * GET /api/interviews
+ * Get all interview sessions for the authenticated user
+ * Requires authentication
+ */
+server.get('/api/interviews', verifyToken, getInterviewSessionsHandler);
+
+/**
+ * GET /api/interviews/:id
+ * Get a specific interview session with all questions
+ * Requires authentication
+ */
+server.get('/api/interviews/:id', verifyToken, getInterviewSessionByIdHandler);
 
