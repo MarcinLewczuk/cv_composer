@@ -163,3 +163,48 @@ CREATE TABLE IF NOT EXISTS `test_results` (
   KEY `idx_userId_completedAt` (`userId`, `completedAt`),
   KEY `idx_testId` (`testId`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Interview Practice Sessions table
+CREATE TABLE IF NOT EXISTS `interview_sessions` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `jobRole` varchar(255) NOT NULL,
+  `experienceLevel` varchar(100),
+  `questionCount` int NOT NULL DEFAULT 10,
+  `createdBy` int NOT NULL,
+  `createdAt` timestamp DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`createdBy`) REFERENCES `users`(`id`) ON DELETE CASCADE,
+  KEY `idx_createdBy` (`createdBy`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Interview Practice Questions table
+CREATE TABLE IF NOT EXISTS `interview_questions` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `sessionId` int NOT NULL,
+  `question` text NOT NULL,
+  `questionType` enum('technical', 'behavioral', 'situational', 'role-specific') NOT NULL DEFAULT 'technical',
+  `sampleAnswer` text,
+  `tips` text,
+  `order` int DEFAULT 1,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`sessionId`) REFERENCES `interview_sessions`(`id`) ON DELETE CASCADE,
+  KEY `idx_sessionId` (`sessionId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Interview Practice Responses table
+CREATE TABLE IF NOT EXISTS `interview_responses` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `sessionId` int NOT NULL,
+  `userId` int NOT NULL,
+  `questionId` int NOT NULL,
+  `userAnswer` text NOT NULL,
+  `aiFeedback` text,
+  `score` int COMMENT 'Score out of 10',
+  `completedAt` timestamp DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  FOREIGN KEY (`sessionId`) REFERENCES `interview_sessions`(`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`userId`) REFERENCES `users`(`id`) ON DELETE CASCADE,
+  FOREIGN KEY (`questionId`) REFERENCES `interview_questions`(`id`) ON DELETE CASCADE,
+  KEY `idx_userId_completedAt` (`userId`, `completedAt`),
+  KEY `idx_sessionId` (`sessionId`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;

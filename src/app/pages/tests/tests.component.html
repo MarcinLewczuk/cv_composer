@@ -2,122 +2,137 @@
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
     
     <!-- Test List View -->
-    <div *ngIf="view === 'list'">
-      <div class="flex items-center justify-between mb-8">
-        <div>
-          <h1 class="text-4xl font-bold text-gray-900 mb-2">Mock Tests</h1>
-          <p class="text-lg text-gray-600">Practice with AI-generated tests tailored to your needs</p>
+    @if (view === 'list') {
+      <div>
+        <div class="flex items-center justify-between mb-8">
+          <div>
+            <h1 class="text-4xl font-bold text-gray-900 mb-2">Mock Tests</h1>
+            <p class="text-lg text-gray-600">Practice with AI-generated tests tailored to your needs</p>
+          </div>
+          <button 
+            (click)="showGenerateForm()"
+            class="px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-lg transition flex items-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            Generate Test
+          </button>
         </div>
-        <button 
-          (click)="showGenerateForm()"
-          class="px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-lg transition flex items-center gap-2">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-          </svg>
-          Generate Test
-        </button>
-      </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
-        <!-- Available Tests -->
-        <div class="lg:col-span-3">
-          <h2 class="text-2xl font-bold text-gray-900 mb-6">Available Tests</h2>
-          
-          <div *ngIf="isLoading" class="text-center py-12">
-            <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
-          </div>
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          <!-- Available Tests -->
+          <div class="lg:col-span-3">
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">Available Tests</h2>
+            
+            @if (isLoading) {
+              <div class="text-center py-12">
+                <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600"></div>
+              </div>
+            }
 
-          <div *ngIf="!isLoading && tests.length === 0" class="text-center py-12">
-            <p class="text-gray-600 mb-4">No tests available yet. Generate your first test!</p>
-          </div>
+            @if (!isLoading && tests.length === 0) {
+              <div class="text-center py-12">
+                <p class="text-gray-600 mb-4">No tests available yet. Generate your first test!</p>
+              </div>
+            }
 
-          <div class="space-y-4" *ngIf="!isLoading && tests.length > 0">
-            <div *ngFor="let test of tests" 
-                 class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer border border-transparent hover:border-orange-200"
-                 (click)="startTest(test.id)">
-              <div class="flex items-start justify-between mb-4">
-                <div class="flex-1">
-                  <h3 class="text-xl font-bold text-gray-900 mb-2">{{ test.title }}</h3>
-                  <p class="text-gray-600 mb-3">{{ test.description }}</p>
-                  <div class="flex items-center gap-3 text-sm text-gray-500">
-                    <span class="flex items-center gap-1">
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                      </svg>
-                      {{ test.questionCount }} questions
-                    </span>
-                    <span class="flex items-center gap-1">
-                      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                      </svg>
-                      {{ test.duration }} min
-                    </span>
-                    <span *ngIf="test.attemptCount && test.attemptCount > 0" class="flex items-center gap-1 text-orange-600">
-                      <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
-                        <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm9.707 5.707a1 1 0 00-1.414-1.414L9 12.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                      </svg>
-                      Attempted {{ test.attemptCount }}x
-                    </span>
+            @if (!isLoading && tests.length > 0) {
+              <div class="space-y-4">
+                @for (test of tests; track test.id) {
+                  <div 
+                    class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition cursor-pointer border border-transparent hover:border-orange-200"
+                    (click)="startTest(test.id)">
+                    <div class="flex items-start justify-between mb-4">
+                      <div class="flex-1">
+                        <h3 class="text-xl font-bold text-gray-900 mb-2">{{ test.title }}</h3>
+                        <p class="text-gray-600 mb-3">{{ test.description }}</p>
+                        <div class="flex items-center gap-3 text-sm text-gray-500">
+                          <span class="flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            {{ test.questionCount }} questions
+                          </span>
+                          <span class="flex items-center gap-1">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            {{ test.duration }} min
+                          </span>
+                          @if (test.attemptCount && test.attemptCount > 0) {
+                            <span class="flex items-center gap-1 text-orange-600">
+                              <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
+                                <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm9.707 5.707a1 1 0 00-1.414-1.414L9 12.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                              </svg>
+                              Attempted {{ test.attemptCount }}x
+                            </span>
+                          }
+                        </div>
+                      </div>
+                      <div class="flex flex-col items-end gap-2">
+                        <span [class]="'text-sm font-semibold px-3 py-1 rounded-full ' + testService.getDifficultyColor(test.difficulty)">
+                          {{ test.difficulty | titlecase }}
+                        </span>
+                        <button class="mt-2 bg-orange-600 hover:bg-orange-700 text-white font-semibold px-4 py-2 rounded-lg transition text-sm">
+                          Take Test
+                        </button>
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <div class="flex flex-col items-end gap-2">
-                  <span [class]="'text-sm font-semibold px-3 py-1 rounded-full ' + testService.getDifficultyColor(test.difficulty)">
-                    {{ test.difficulty | titlecase }}
-                  </span>
-                  <button class="mt-2 bg-orange-600 hover:bg-orange-700 text-white font-semibold px-4 py-2 rounded-lg transition text-sm">
-                    Take Test
-                  </button>
-                </div>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Statistics Sidebar -->
+          <div>
+            <h2 class="text-2xl font-bold text-gray-900 mb-6">Your Stats</h2>
+            <div class="bg-white rounded-lg shadow-md p-6 space-y-4 sticky top-4">
+              <div>
+                <p class="text-sm text-gray-600 mb-2">Tests Taken</p>
+                <p class="text-3xl font-bold text-orange-600">{{ userStats?.stats?.totalTests || 0 }}</p>
+              </div>
+              <hr class="border-gray-200" />
+              <div>
+                <p class="text-sm text-gray-600 mb-2">Best Score</p>
+                <p [class]="'text-3xl font-bold ' + testService.getScoreColor(userStats?.stats?.bestScore || 0)">
+                  {{ userStats?.stats?.bestScore || 0 }}%
+                </p>
+              </div>
+              <hr class="border-gray-200" />
+              <div>
+                <p class="text-sm text-gray-600 mb-2">Average Score</p>
+                <p [class]="'text-3xl font-bold ' + testService.getScoreColor(userStats?.stats?.averageScore || 0)">
+                  {{ userStats?.stats?.averageScore || 0 }}%
+                </p>
               </div>
             </div>
           </div>
         </div>
-
-        <!-- Statistics Sidebar -->
-        <div>
-          <h2 class="text-2xl font-bold text-gray-900 mb-6">Your Stats</h2>
-          <div class="bg-white rounded-lg shadow-md p-6 space-y-4 sticky top-4">
-            <div>
-              <p class="text-sm text-gray-600 mb-2">Tests Taken</p>
-              <p class="text-3xl font-bold text-orange-600">{{ userStats?.stats?.totalTests || 0 }}</p>
-            </div>
-            <hr class="border-gray-200" />
-            <div>
-              <p class="text-sm text-gray-600 mb-2">Best Score</p>
-              <p [class]="'text-3xl font-bold ' + testService.getScoreColor(userStats?.stats?.bestScore || 0)">
-                {{ userStats?.stats?.bestScore || 0 }}%
-              </p>
-            </div>
-            <hr class="border-gray-200" />
-            <div>
-              <p class="text-sm text-gray-600 mb-2">Average Score</p>
-              <p [class]="'text-3xl font-bold ' + testService.getScoreColor(userStats?.stats?.averageScore || 0)">
-                {{ userStats?.stats?.averageScore || 0 }}%
-              </p>
-            </div>
-          </div>
-        </div>
       </div>
-    </div>
+    }
 
     <!-- Generate Test View -->
-    <div *ngIf="view === 'generate'" class="max-w-2xl mx-auto">
-      <div class="mb-8">
-        <button (click)="backToList()" class="text-orange-600 hover:text-orange-700 font-medium flex items-center gap-2 mb-4">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-          </svg>
-          Back to Tests
-        </button>
-        <h1 class="text-4xl font-bold text-gray-900 mb-2">Generate New Test</h1>
-        <p class="text-lg text-gray-600">Create a custom mock test using AI</p>
-      </div>
-
-      <div class="bg-white rounded-lg shadow-md p-8">
-        <div *ngIf="errorMessage" class="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-          {{ errorMessage }}
+    @if (view === 'generate') {
+      <div class="max-w-2xl mx-auto">
+        <div class="mb-8">
+          <button (click)="backToList()" class="text-orange-600 hover:text-orange-700 font-medium flex items-center gap-2 mb-4">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+            </svg>
+            Back to Tests
+          </button>
+          <h1 class="text-4xl font-bold text-gray-900 mb-2">Generate New Test</h1>
+          <p class="text-lg text-gray-600">Create a custom mock test using AI</p>
         </div>
+
+        <div class="bg-white rounded-lg shadow-md p-8">
+          @if (errorMessage) {
+            <div class="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+              {{ errorMessage }}
+            </div>
+          }
 
         <div class="space-y-6">
           <div>
@@ -133,16 +148,17 @@
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-2">Difficulty</label>
             <div class="grid grid-cols-3 gap-3">
-              <button 
-                *ngFor="let diff of ['easy', 'medium', 'hard']"
-                (click)="setDifficulty(diff)"
-                [class]="'px-4 py-3 rounded-lg font-medium transition ' + 
-                  (generateForm.difficulty === diff 
-                    ? 'bg-orange-600 text-white' 
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200')"
-                [disabled]="isLoading">
-                {{ diff | titlecase }}
-              </button>
+              @for (diff of ['easy', 'medium', 'hard']; track diff) {
+                <button 
+                  (click)="setDifficulty(diff)"
+                  [class]="'px-4 py-3 rounded-lg font-medium transition ' + 
+                    (generateForm.difficulty === diff 
+                      ? 'bg-orange-600 text-white' 
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200')"
+                  [disabled]="isLoading">
+                  {{ diff | titlecase }}
+                </button>
+              }
             </div>
           </div>
 
@@ -163,8 +179,11 @@
               (click)="generateTest()"
               [disabled]="isLoading || !generateForm.topic.trim()"
               class="flex-1 bg-orange-600 hover:bg-orange-700 text-white font-semibold py-3 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed">
-              <span *ngIf="!isLoading">Generate Test</span>
-              <span *ngIf="isLoading">Generating...</span>
+              @if (!isLoading) {
+                <span>Generate Test</span>
+              } @else {
+                <span>Generating...</span>
+              }
             </button>
             <button 
               (click)="backToList()"
@@ -175,10 +194,12 @@
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    }
 
     <!-- Take Test View -->
-    <div *ngIf="view === 'test' && currentTest" class="max-w-5xl mx-auto">
+    @if (view === 'test' && currentTest) {
+      <div class="max-w-5xl mx-auto">
       <!-- Test Header with Timer -->
       <div class="bg-white rounded-lg shadow-md p-6 mb-6 sticky top-0 z-10">
         <div class="flex items-center justify-between">
@@ -195,79 +216,86 @@
         </div>
       </div>
 
-      <!-- Question -->
-      <div class="bg-white rounded-lg shadow-md p-8 mb-6" *ngIf="getCurrentQuestion() as question">
-        <h3 class="text-xl font-semibold text-gray-900 mb-6">{{ question.question }}</h3>
-        
-        <div class="space-y-3">
-          <div *ngFor="let option of ['A', 'B', 'C', 'D']; let i = index"
-               (click)="selectAnswer(question.id!, option)"
-               [class]="'p-4 border-2 rounded-lg cursor-pointer transition ' + 
-                 (userAnswers[question.id!] === option 
-                   ? 'border-orange-600 bg-orange-50' 
-                   : 'border-gray-200 hover:border-orange-300 hover:bg-gray-50')">
-            <div class="flex items-start gap-3">
-              <div [class]="'w-8 h-8 rounded-full flex items-center justify-center font-semibold ' + 
-                     (userAnswers[question.id!] === option 
-                       ? 'bg-orange-600 text-white' 
-                       : 'bg-gray-200 text-gray-700')">
-                {{ option }}
-              </div>
-              <span class="flex-1 text-gray-900">
-                {{ option === 'A' ? question.optionA : 
-                   option === 'B' ? question.optionB : 
-                   option === 'C' ? question.optionC : 
-                   question.optionD }}
-              </span>
+        <!-- Question -->
+        @if (getCurrentQuestion(); as question) {
+          <div class="bg-white rounded-lg shadow-md p-8 mb-6">
+            <h3 class="text-xl font-semibold text-gray-900 mb-6">{{ question.question }}</h3>
+            
+            <div class="space-y-3">
+              @for (option of ['A', 'B', 'C', 'D']; track option; let i = $index) {
+                <div 
+                  (click)="selectAnswer(question.id!, option)"
+                  [class]="'p-4 border-2 rounded-lg cursor-pointer transition ' + 
+                    (userAnswers[question.id!] === option 
+                      ? 'border-orange-600 bg-orange-50' 
+                      : 'border-gray-200 hover:border-orange-300 hover:bg-gray-50')">
+                  <div class="flex items-start gap-3">
+                    <div [class]="'w-8 h-8 rounded-full flex items-center justify-center font-semibold ' + 
+                           (userAnswers[question.id!] === option 
+                             ? 'bg-orange-600 text-white' 
+                             : 'bg-gray-200 text-gray-700')">
+                      {{ option }}
+                    </div>
+                    <span class="flex-1 text-gray-900">
+                      {{ option === 'A' ? question.optionA : 
+                         option === 'B' ? question.optionB : 
+                         option === 'C' ? question.optionC : 
+                         question.optionD }}
+                    </span>
+                  </div>
+                </div>
+              }
             </div>
+          </div>
+        }
+
+        <!-- Navigation -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+          <div class="flex items-center justify-between mb-4">
+            <button 
+              (click)="previousQuestion()"
+              [disabled]="currentQuestionIndex === 0"
+              class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed">
+              Previous
+            </button>
+            
+            @if (currentQuestionIndex < currentTest.questions.length - 1) {
+              <button 
+                (click)="nextQuestion()"
+                class="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-lg transition">
+                Next
+              </button>
+            } @else {
+              <button 
+                (click)="submitTest()"
+                class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition">
+                Submit Test
+              </button>
+            }
+          </div>
+
+          <!-- Question Grid -->
+          <div class="grid grid-cols-10 gap-2">
+            @for (q of currentTest.questions; track q.id; let i = $index) {
+              <button 
+                (click)="goToQuestion(i)"
+                [class]="'w-10 h-10 rounded-lg font-semibold transition ' + 
+                  (i === currentQuestionIndex 
+                    ? 'bg-orange-600 text-white ring-2 ring-orange-300' 
+                    : getAnswerStatus(i) === 'answered' 
+                      ? 'bg-green-100 text-green-700 hover:bg-green-200' 
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200')">
+                {{ i + 1 }}
+              </button>
+            }
           </div>
         </div>
       </div>
-
-      <!-- Navigation -->
-      <div class="bg-white rounded-lg shadow-md p-6">
-        <div class="flex items-center justify-between mb-4">
-          <button 
-            (click)="previousQuestion()"
-            [disabled]="currentQuestionIndex === 0"
-            class="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-700 font-semibold rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed">
-            Previous
-          </button>
-          
-          <button 
-            *ngIf="currentQuestionIndex < currentTest.questions.length - 1"
-            (click)="nextQuestion()"
-            class="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-lg transition">
-            Next
-          </button>
-          
-          <button 
-            *ngIf="currentQuestionIndex === currentTest.questions.length - 1"
-            (click)="submitTest()"
-            class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition">
-            Submit Test
-          </button>
-        </div>
-
-        <!-- Question Grid -->
-        <div class="grid grid-cols-10 gap-2">
-          <button 
-            *ngFor="let q of currentTest.questions; let i = index"
-            (click)="goToQuestion(i)"
-            [class]="'w-10 h-10 rounded-lg font-semibold transition ' + 
-              (i === currentQuestionIndex 
-                ? 'bg-orange-600 text-white ring-2 ring-orange-300' 
-                : getAnswerStatus(i) === 'answered' 
-                  ? 'bg-green-100 text-green-700 hover:bg-green-200' 
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200')">
-            {{ i + 1 }}
-          </button>
-        </div>
-      </div>
-    </div>
+    }
 
     <!-- Result View -->
-    <div *ngIf="view === 'result' && testResult" class="max-w-5xl mx-auto">
+    @if (view === 'result' && testResult) {
+      <div class="max-w-5xl mx-auto">
       <div class="mb-8">
         <button (click)="backToList()" class="text-orange-600 hover:text-orange-700 font-medium flex items-center gap-2 mb-4">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -308,53 +336,59 @@
         </div>
       </div>
 
-      <!-- Detailed Results -->
-      <h2 class="text-2xl font-bold text-gray-900 mb-6">Answer Review</h2>
-      <div class="space-y-6">
-        <div *ngFor="let result of testResult.results; let i = index" 
-             class="bg-white rounded-lg shadow-md p-6">
-          <div class="flex items-start gap-4">
-            <div [class]="'w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl flex-shrink-0 ' + 
-                   (result.isCorrect ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600')">
-              {{ i + 1 }}
-            </div>
-            <div class="flex-1">
-              <p class="font-semibold text-gray-900 mb-3">{{ result.question }}</p>
-              
-              <div class="space-y-2 mb-4">
-                <div [class]="'p-3 rounded-lg ' + 
-                       (result.userAnswer && result.userAnswer === result.correctAnswer 
-                         ? 'bg-green-50 border-2 border-green-500' 
-                         : result.userAnswer ? 'bg-red-50 border-2 border-red-500' : 'bg-gray-50')">
-                  <p class="text-sm text-gray-600">Your Answer:</p>
-                  <p class="font-medium">
-                    {{ result.userAnswer || 'Not answered' }}
-                  </p>
+        <!-- Detailed Results -->
+        <h2 class="text-2xl font-bold text-gray-900 mb-6">Answer Review</h2>
+        <div class="space-y-6">
+          @for (result of testResult.results; track $index; let i = $index) {
+            <div class="bg-white rounded-lg shadow-md p-6">
+              <div class="flex items-start gap-4">
+                <div [class]="'w-12 h-12 rounded-full flex items-center justify-center font-bold text-xl flex-shrink-0 ' + 
+                       (result.isCorrect ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600')">
+                  {{ i + 1 }}
                 </div>
-                
-                <div *ngIf="!result.isCorrect" class="p-3 rounded-lg bg-green-50 border-2 border-green-500">
-                  <p class="text-sm text-gray-600">Correct Answer:</p>
-                  <p class="font-medium">{{ result.correctAnswer }}</p>
-                </div>
-              </div>
+                <div class="flex-1">
+                  <p class="font-semibold text-gray-900 mb-3">{{ result.question }}</p>
+                  
+                  <div class="space-y-2 mb-4">
+                    <div [class]="'p-3 rounded-lg ' + 
+                           (result.userAnswer && result.userAnswer === result.correctAnswer 
+                             ? 'bg-green-50 border-2 border-green-500' 
+                             : result.userAnswer ? 'bg-red-50 border-2 border-red-500' : 'bg-gray-50')">
+                      <p class="text-sm text-gray-600">Your Answer:</p>
+                      <p class="font-medium">
+                        {{ result.userAnswer || 'Not answered' }}
+                      </p>
+                    </div>
+                    
+                    @if (!result.isCorrect) {
+                      <div class="p-3 rounded-lg bg-green-50 border-2 border-green-500">
+                        <p class="text-sm text-gray-600">Correct Answer:</p>
+                        <p class="font-medium">{{ result.correctAnswer }}</p>
+                      </div>
+                    }
+                  </div>
 
-              <div class="p-4 bg-blue-50 rounded-lg">
-                <p class="text-sm font-semibold text-blue-900 mb-1">Explanation:</p>
-                <p class="text-sm text-blue-800">{{ result.explanation }}</p>
+                  <div class="p-4 bg-blue-50 rounded-lg">
+                    <p class="text-sm font-semibold text-blue-900 mb-1">Explanation:</p>
+                    <p class="text-sm text-blue-800">{{ result.explanation }}</p>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
+          }
         </div>
       </div>
-    </div>
+    }
 
     <!-- Loading Overlay -->
-    <div *ngIf="isLoading" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white rounded-lg p-8 text-center">
-        <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mb-4"></div>
-        <p class="text-gray-700 font-medium">Loading...</p>
+    @if (isLoading) {
+      <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-8 text-center">
+          <div class="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mb-4"></div>
+          <p class="text-gray-700 font-medium">Loading...</p>
+        </div>
       </div>
-    </div>
+    }
 
   </div>
 </main>
