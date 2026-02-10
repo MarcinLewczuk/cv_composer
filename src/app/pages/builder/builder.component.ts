@@ -79,6 +79,7 @@ export class BuilderComponent {
         this.aiLoading = false;
         this.aiMessage = 'CV Review complete!';
         this.reviewResult = response.data;
+        this.cdr.detectChanges();
       },
       error: (error) => {
         this.aiLoading = false;
@@ -102,6 +103,7 @@ export class BuilderComponent {
         this.aiLoading = false;
         this.aiMessage = 'CV improved!';
         this.improvedCV = response.data;
+        this.cdr.detectChanges();
       },
       error: (error) => {
         this.aiLoading = false;
@@ -125,6 +127,7 @@ export class BuilderComponent {
         this.aiLoading = false;
         this.aiMessage = 'CV tailored successfully!';
         this.tailoredCV = response.data;
+        this.cdr.detectChanges();
       },
       error: (error) => {
         this.aiLoading = false;
@@ -150,6 +153,7 @@ export class BuilderComponent {
           this.aiLoading = false;
           this.aiMessage = 'Interview questions generated!';
           this.interviewQuestions = response.data;
+          this.cdr.detectChanges();
         },
         error: (error) => {
           this.aiLoading = false;
