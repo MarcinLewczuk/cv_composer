@@ -476,3 +476,114 @@ export const deleteCVHandler = async (req: Request, res: Response) => {
     } as ApiResponse);
   }
 };
+
+/**
+ * PUT /api/cv/:id
+ * Update an existing CV (requires authentication)
+ */
+export const updateCVHandler = async (req: Request, res: Response) => {
+  try {
+    const userId = (req as any).user?.id; // From auth middleware
+    const cvId = parseInt(req.params.id, 10);
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: 'Authentication required',
+        error: 'UNAUTHORIZED',
+      } as ApiResponse);
+    }
+
+    if (isNaN(cvId)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid CV ID',
+        error: 'INVALID_ID',
+      } as ApiResponse);
+    }
+
+    const { cvJson, originalContent } = req.body as {
+      cvJson: ParsedCVStructure;
+      originalContent: string;
+    };
+
+    if (!originalContent || typeof originalContent !== 'string') {
+      return res.status(400).json({
+        success: false,
+        message: 'CV content is required',
+        error: 'INVALID_INPUT',
+      } as ApiResponse);
+    }
+
+    if (!cvJson) {
+      return res.status(400).json({
+        success: false,
+        message: 'Parsed CV data is required',
+        error: 'INVALID_INPUT',
+      } as ApiResponse);
+    }
+
+    // Check required fields
+    if (!cvJson.personalInfo?.name || !cvJson.personalInfo?.email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Required fields missing: personalInfo.name and personalInfo.email',
+        error: 'MISSING_REQUIRED_FIELDS',
+      } as ApiResponse);
+    }
+
+    if (!cvJson.education || cvJson.education.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'At least one education entry is required',
+        error: 'MISSING_REQUIRED_FIELDS',
+      } as ApiResponse);
+    }
+
+    if (!cvJson.skills || cvJson.skills.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'At least one skill is required',
+        error: 'MISSING_REQUIRED_FIELDS',
+      } as ApiResponse);
+    }
+
+    // Update CV in database
+    const updatedCV = await updateCV(cvId, userId, {
+      originalContent,
+      fullName: cvJson.personalInfo.name,
+      email: cvJson.personalInfo.email,
+      phone: cvJson.personalInfo.phone,
+      location: cvJson.personalInfo.location,
+      summary: cvJson.summary,
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: 'CV updated successfully',
+      data: {
+        id: updatedCV.id,
+        fullName: updatedCV.fullName,
+        email: updatedCV.email,
+        updatedAt: updatedCV.updatedAt,
+      },
+    } as ApiResponse);
+  } catch (error) {
+    console.error('CV Update Error:', error);
+    const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+
+    if (errorMsg === 'CV not found or unauthorized') {
+      return res.status(403).json({
+        success: false,
+        message: 'CV not found or you do not have permission to update it',
+        error: 'FORBIDDEN',
+      } as ApiResponse);
+    }
+
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to update CV',
+      error: errorMsg,
+    } as ApiResponse);
+  }
+};

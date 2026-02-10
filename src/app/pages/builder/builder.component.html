@@ -2,16 +2,398 @@
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
     <div class="mb-8">
       <h1 class="text-4xl font-bold text-gray-900 mb-2">CV Builder</h1>
-      <p class="text-lg text-gray-600">Create your professional resume with our intuitive CV builder</p>
+      <p class="text-lg text-gray-600">
+        Upload your CV, use AI to enhance it, tailor it for jobs, or prepare for interviews
+      </p>
     </div>
 
     <!-- CV Upload Section -->
     <div class="mb-12">
-      <app-cv-upload></app-cv-upload>
+      <app-cv-upload (cvSelected)="onUploadedCVSelected($event)"></app-cv-upload>
+    </div>
+
+    <!-- AI Features for Uploaded CV -->
+    <div *ngIf="selectedUploadedCV" class="bg-white rounded-lg shadow-lg p-8 mb-12">
+      <div class="mb-6">
+        <h2 class="text-2xl font-bold text-gray-900 mb-2">
+          AI Assistant for: {{ selectedUploadedCV.fileName }}
+        </h2>
+        <p class="text-gray-600">Enhance, tailor, and prepare your CV with AI-powered tools</p>
+      </div>
+
+      <!-- Job Description Input (required for tailor and interview prep) -->
+      <div class="mb-6">
+        <label class="block text-sm font-medium text-gray-900 mb-2"
+          >Job Description (for Tailor & Interview Prep)</label
+        >
+        <textarea
+          [(ngModel)]="jobDescriptionInput"
+          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent resize-none"
+          rows="4"
+          placeholder="Paste the job description or company name + job title here to tailor your CV and generate relevant interview questions..."
+        >
+        </textarea>
+      </div>
+
+      <!-- Error Message -->
+      <div
+        *ngIf="aiError"
+        class="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg"
+      >
+        {{ aiError }}
+      </div>
+
+      <!-- Success Message -->
+      <div
+        *ngIf="aiMessage && !aiError"
+        class="mb-6 bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg"
+      >
+        {{ aiMessage }}
+      </div>
+
+      <!-- Parsed CV Preview -->
+      <div *ngIf="uploadedCVParsed" class="mb-8 bg-gray-50 border border-gray-200 rounded-lg p-6">
+        <h3 class="text-lg font-bold text-gray-900 mb-4">📄 Parsed CV Preview</h3>
+        <p class="text-sm text-gray-600 mb-4">
+          Review the extracted CV data. If it looks correct, proceed with AI features.
+        </p>
+
+        <!-- Personal Info -->
+        <div class="mb-6">
+          <h4 class="font-semibold text-gray-900 mb-2">Personal Information</h4>
+          <div class="bg-white p-4 rounded border border-gray-200">
+            <p class="text-sm">
+              <span class="font-semibold">Name:</span> {{ uploadedCVParsed.personalInfo.name }}
+            </p>
+            <p class="text-sm">
+              <span class="font-semibold">Email:</span> {{ uploadedCVParsed.personalInfo.email }}
+            </p>
+            <p class="text-sm" *ngIf="uploadedCVParsed.personalInfo.phone">
+              <span class="font-semibold">Phone:</span> {{ uploadedCVParsed.personalInfo.phone }}
+            </p>
+            <p class="text-sm" *ngIf="uploadedCVParsed.personalInfo.location">
+              <span class="font-semibold">Location:</span>
+              {{ uploadedCVParsed.personalInfo.location }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Professional Summary -->
+        <div class="mb-6" *ngIf="uploadedCVParsed.summary">
+          <h4 class="font-semibold text-gray-900 mb-2">Professional Summary</h4>
+          <div class="bg-white p-4 rounded border border-gray-200">
+            <p class="text-sm text-gray-700">{{ uploadedCVParsed.summary }}</p>
+          </div>
+        </div>
+
+        <!-- Experience -->
+        <div
+          class="mb-6"
+          *ngIf="uploadedCVParsed.experience && uploadedCVParsed.experience.length > 0"
+        >
+          <h4 class="font-semibold text-gray-900 mb-2">Experience</h4>
+          <div
+            *ngFor="let exp of uploadedCVParsed.experience"
+            class="bg-white p-4 rounded border border-gray-200 mb-3"
+          >
+            <p class="font-semibold text-gray-900">
+              {{ exp.position }} <span class="text-gray-600 font-normal">at {{ exp.company }}</span>
+            </p>
+            <p class="text-sm text-gray-600">{{ exp.duration }}</p>
+            <p class="text-sm text-gray-700 mt-2" *ngIf="exp.description">{{ exp.description }}</p>
+            <div *ngIf="exp.achievements && exp.achievements.length > 0" class="mt-2">
+              <p class="text-xs font-semibold text-gray-700">Achievements:</p>
+              <ul class="list-disc list-inside text-sm text-gray-700">
+                <li *ngFor="let achieve of exp.achievements">{{ achieve }}</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <!-- Education -->
+        <div
+          class="mb-6"
+          *ngIf="uploadedCVParsed.education && uploadedCVParsed.education.length > 0"
+        >
+          <h4 class="font-semibold text-gray-900 mb-2">Education</h4>
+          <div
+            *ngFor="let edu of uploadedCVParsed.education"
+            class="bg-white p-4 rounded border border-gray-200 mb-3"
+          >
+            <p class="font-semibold text-gray-900">{{ edu.degree }} in {{ edu.field }}</p>
+            <p class="text-sm text-gray-600">
+              {{ edu.institution }}
+              <span *ngIf="edu.graduationYear">- {{ edu.graduationYear }}</span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Skills -->
+        <div class="mb-6" *ngIf="uploadedCVParsed.skills && uploadedCVParsed.skills.length > 0">
+          <h4 class="font-semibold text-gray-900 mb-2">Skills</h4>
+          <div class="bg-white p-4 rounded border border-gray-200">
+            <div class="flex flex-wrap gap-2">
+              <span
+                *ngFor="let skill of uploadedCVParsed.skills"
+                class="inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm"
+              >
+                {{ skill }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Certifications -->
+        <div
+          class="mb-6"
+          *ngIf="uploadedCVParsed.certifications && uploadedCVParsed.certifications.length > 0"
+        >
+          <h4 class="font-semibold text-gray-900 mb-2">Certifications</h4>
+          <div
+            *ngFor="let cert of uploadedCVParsed.certifications"
+            class="bg-white p-4 rounded border border-gray-200 mb-3"
+          >
+            <p class="font-semibold text-gray-900">{{ cert.name }}</p>
+            <p class="text-sm text-gray-600" *ngIf="cert.issuer">Issued by {{ cert.issuer }}</p>
+            <p class="text-sm text-gray-600" *ngIf="cert.date">{{ cert.date }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI Action Buttons -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+        <button
+          (click)="reviewUploadedCV()"
+          [disabled]="aiLoading || !uploadedCVParsed"
+          class="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white font-semibold py-3 rounded-lg transition"
+        >
+          <span *ngIf="!aiLoading">📋 Review CV</span>
+          <span *ngIf="aiLoading">Processing...</span>
+        </button>
+
+        <button
+          (click)="improveUploadedCV()"
+          [disabled]="aiLoading || !uploadedCVParsed"
+          class="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white font-semibold py-3 rounded-lg transition"
+        >
+          <span *ngIf="!aiLoading">✨ Improve Language</span>
+          <span *ngIf="aiLoading">Processing...</span>
+        </button>
+
+        <button
+          (click)="tailorUploadedCV()"
+          [disabled]="aiLoading || !uploadedCVParsed || !jobDescriptionInput.trim()"
+          class="bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white font-semibold py-3 rounded-lg transition"
+        >
+          <span *ngIf="!aiLoading">🎯 Tailor for Job</span>
+          <span *ngIf="aiLoading">Processing...</span>
+        </button>
+
+        <button
+          (click)="generateInterviewQuestionsForUploadedCV()"
+          [disabled]="aiLoading || !uploadedCVParsed || !jobDescriptionInput.trim()"
+          class="bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white font-semibold py-3 rounded-lg transition"
+        >
+          <span *ngIf="!aiLoading">❓ Interview Prep</span>
+          <span *ngIf="aiLoading">Processing...</span>
+        </button>
+      </div>
+
+      <!-- CV Review Results -->
+      <div *ngIf="reviewResult" class="mb-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
+        <h3 class="text-lg font-bold text-gray-900 mb-4">📋 CV Review Feedback</h3>
+
+        <div class="mb-4">
+          <p
+            class="font-semibold"
+            [ngClass]="reviewResult.isValid ? 'text-green-600' : 'text-red-600'"
+          >
+            {{ reviewResult.isValid ? '✓ CV Structure is Valid' : '✗ CV Structure Issues Found' }}
+          </p>
+        </div>
+
+        <div
+          *ngIf="reviewResult.structureIssues && reviewResult.structureIssues.length"
+          class="mb-4"
+        >
+          <h4 class="font-semibold text-gray-900 mb-2">Structure Issues:</h4>
+          <ul class="list-disc list-inside text-gray-700">
+            <li *ngFor="let issue of reviewResult.structureIssues">{{ issue }}</li>
+          </ul>
+        </div>
+
+        <div *ngIf="reviewResult.styleIssues && reviewResult.styleIssues.length" class="mb-4">
+          <h4 class="font-semibold text-gray-900 mb-2">Style Issues:</h4>
+          <ul class="list-disc list-inside text-gray-700">
+            <li *ngFor="let issue of reviewResult.styleIssues">{{ issue }}</li>
+          </ul>
+        </div>
+
+        <div *ngIf="reviewResult.recommendations && reviewResult.recommendations.length">
+          <h4 class="font-semibold text-gray-900 mb-2">Recommendations:</h4>
+          <ul class="list-disc list-inside text-gray-700">
+            <li *ngFor="let rec of reviewResult.recommendations">{{ rec }}</li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Improved CV Results -->
+      <div *ngIf="improvedCV" class="mb-8 bg-green-50 border border-green-200 rounded-lg p-6">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-bold text-gray-900">✨ Improved CV</h3>
+          <button
+            (click)="downloadImprovedCV()"
+            class="text-green-600 hover:text-green-700 font-semibold text-sm"
+          >
+            ⬇️ Download JSON
+          </button>
+        </div>
+
+        <div class="space-y-4">
+          <div *ngIf="improvedCV.personalInfo">
+            <h4 class="font-semibold text-gray-900 mb-2">Name & Contact</h4>
+            <p>
+              {{ improvedCV.personalInfo.name }} | {{ improvedCV.personalInfo.email }} |
+              {{ improvedCV.personalInfo.phone }}
+            </p>
+            <p *ngIf="improvedCV.personalInfo.location" class="text-sm text-gray-600">
+              {{ improvedCV.personalInfo.location }}
+            </p>
+          </div>
+
+          <div *ngIf="improvedCV.summary">
+            <h4 class="font-semibold text-gray-900 mb-2">Summary</h4>
+            <p>{{ improvedCV.summary }}</p>
+          </div>
+
+          <div *ngIf="improvedCV.experience && improvedCV.experience.length">
+            <h4 class="font-semibold text-gray-900 mb-2">Experience</h4>
+            <div
+              *ngFor="let exp of improvedCV.experience"
+              class="mb-3 pl-4 border-l-2 border-green-300"
+            >
+              <p class="font-semibold">{{ exp.position }} at {{ exp.company }}</p>
+              <p class="text-sm text-gray-600">{{ exp.duration }}</p>
+              <p class="text-sm">{{ exp.description }}</p>
+            </div>
+          </div>
+
+          <div *ngIf="improvedCV.education && improvedCV.education.length">
+            <h4 class="font-semibold text-gray-900 mb-2">Education</h4>
+            <div
+              *ngFor="let edu of improvedCV.education"
+              class="mb-3 pl-4 border-l-2 border-green-300"
+            >
+              <p class="font-semibold">{{ edu.degree }} in {{ edu.field }}</p>
+              <p class="text-sm text-gray-600">{{ edu.institution }}</p>
+              <p *ngIf="edu.graduationYear" class="text-sm">Graduated: {{ edu.graduationYear }}</p>
+            </div>
+          </div>
+
+          <div *ngIf="improvedCV.skills && improvedCV.skills.length">
+            <h4 class="font-semibold text-gray-900 mb-2">Skills</h4>
+            <div class="flex flex-wrap gap-2">
+              <span
+                *ngFor="let skill of improvedCV.skills"
+                class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm"
+              >
+                {{ skill }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tailored CV Results -->
+      <div *ngIf="tailoredCV" class="mb-8 bg-purple-50 border border-purple-200 rounded-lg p-6">
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-bold text-gray-900">🎯 Tailored CV</h3>
+          <button
+            (click)="downloadTailoredCV()"
+            class="text-purple-600 hover:text-purple-700 font-semibold text-sm"
+          >
+            ⬇️ Download JSON
+          </button>
+        </div>
+
+        <div class="space-y-4">
+          <div *ngIf="tailoredCV.personalInfo">
+            <h4 class="font-semibold text-gray-900 mb-2">Name & Contact</h4>
+            <p>
+              {{ tailoredCV.personalInfo.name }} | {{ tailoredCV.personalInfo.email }} |
+              {{ tailoredCV.personalInfo.phone }}
+            </p>
+            <p *ngIf="tailoredCV.personalInfo.location" class="text-sm text-gray-600">
+              {{ tailoredCV.personalInfo.location }}
+            </p>
+          </div>
+
+          <div *ngIf="tailoredCV.summary">
+            <h4 class="font-semibold text-gray-900 mb-2">Summary</h4>
+            <p>{{ tailoredCV.summary }}</p>
+          </div>
+
+          <div *ngIf="tailoredCV.experience && tailoredCV.experience.length">
+            <h4 class="font-semibold text-gray-900 mb-2">Experience (Reordered by Relevance)</h4>
+            <div
+              *ngFor="let exp of tailoredCV.experience"
+              class="mb-3 pl-4 border-l-2 border-purple-300"
+            >
+              <p class="font-semibold">{{ exp.position }} at {{ exp.company }}</p>
+              <p class="text-sm text-gray-600">{{ exp.duration }}</p>
+              <p class="text-sm">{{ exp.description }}</p>
+            </div>
+          </div>
+
+          <div *ngIf="tailoredCV.education && tailoredCV.education.length">
+            <h4 class="font-semibold text-gray-900 mb-2">Education</h4>
+            <div
+              *ngFor="let edu of tailoredCV.education"
+              class="mb-3 pl-4 border-l-2 border-purple-300"
+            >
+              <p class="font-semibold">{{ edu.degree }} in {{ edu.field }}</p>
+              <p class="text-sm text-gray-600">{{ edu.institution }}</p>
+              <p *ngIf="edu.graduationYear" class="text-sm">Graduated: {{ edu.graduationYear }}</p>
+            </div>
+          </div>
+
+          <div *ngIf="tailoredCV.skills && tailoredCV.skills.length">
+            <h4 class="font-semibold text-gray-900 mb-2">Skills (Reordered by Relevance)</h4>
+            <div class="flex flex-wrap gap-2">
+              <span
+                *ngFor="let skill of tailoredCV.skills"
+                class="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm"
+              >
+                {{ skill }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Interview Questions -->
+      <div
+        *ngIf="interviewQuestions && interviewQuestions.length"
+        class="mb-8 bg-red-50 border border-red-200 rounded-lg p-6"
+      >
+        <h3 class="text-lg font-bold text-gray-900 mb-4">❓ Interview Preparation Questions</h3>
+        <div class="space-y-4">
+          <div
+            *ngFor="let question of interviewQuestions; let i = index"
+            class="pl-4 border-l-2 border-red-300"
+          >
+            <p class="font-semibold text-gray-900">{{ i + 1 }}. {{ question }}</p>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- CV Editor Section -->
     <div class="mb-12">
+      <h2 class="text-2xl font-bold text-gray-900 mb-6">Manual CV Builder</h2>
+      <p class="text-gray-600 mb-4">
+        Or build your CV from scratch by entering information manually
+      </p>
       <app-cv-editor></app-cv-editor>
     </div>
 
@@ -20,31 +402,49 @@
       <div class="md:col-span-3">
         <h2 class="text-2xl font-bold text-gray-900 mb-6">Choose a Template</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition cursor-pointer p-6 border-2 border-transparent hover:border-orange-600">
+          <div
+            class="bg-white rounded-lg shadow-md hover:shadow-lg transition cursor-pointer p-6 border-2 border-transparent hover:border-orange-600"
+          >
             <div class="w-full h-48 bg-gray-200 rounded mb-4 flex items-center justify-center">
               <span class="text-gray-600">Template Preview</span>
             </div>
             <h3 class="text-lg font-bold text-gray-900 mb-2">Modern</h3>
             <p class="text-gray-600 mb-4">Clean and professional design</p>
-            <button class="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 rounded-lg transition">Use Template</button>
+            <button
+              class="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 rounded-lg transition"
+            >
+              Use Template
+            </button>
           </div>
 
-          <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition cursor-pointer p-6 border-2 border-transparent hover:border-orange-600">
+          <div
+            class="bg-white rounded-lg shadow-md hover:shadow-lg transition cursor-pointer p-6 border-2 border-transparent hover:border-orange-600"
+          >
             <div class="w-full h-48 bg-gray-200 rounded mb-4 flex items-center justify-center">
               <span class="text-gray-600">Template Preview</span>
             </div>
             <h3 class="text-lg font-bold text-gray-900 mb-2">Creative</h3>
             <p class="text-gray-600 mb-4">Stand out with bold colors</p>
-            <button class="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 rounded-lg transition">Use Template</button>
+            <button
+              class="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 rounded-lg transition"
+            >
+              Use Template
+            </button>
           </div>
 
-          <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition cursor-pointer p-6 border-2 border-transparent hover:border-orange-600">
+          <div
+            class="bg-white rounded-lg shadow-md hover:shadow-lg transition cursor-pointer p-6 border-2 border-transparent hover:border-orange-600"
+          >
             <div class="w-full h-48 bg-gray-200 rounded mb-4 flex items-center justify-center">
               <span class="text-gray-600">Template Preview</span>
             </div>
             <h3 class="text-lg font-bold text-gray-900 mb-2">Minimal</h3>
             <p class="text-gray-600 mb-4">Simple and focused</p>
-            <button class="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 rounded-lg transition">Use Template</button>
+            <button
+              class="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold py-2 rounded-lg transition"
+            >
+              Use Template
+            </button>
           </div>
         </div>
       </div>
